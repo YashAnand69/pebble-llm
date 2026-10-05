@@ -118,6 +118,8 @@ form.addEventListener("submit", async (event) => {
     return;
   }
   button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  responsePanel.dataset.state = "loading";
   copyButton.disabled = true;
   cancelButton.hidden = false;
   responsePanel.setAttribute("aria-busy", "true");
@@ -162,6 +164,7 @@ form.addEventListener("submit", async (event) => {
         "The model returned an incomplete response. Please try again.",
       );
     }
+    responsePanel.dataset.state = result.answer.length ? "complete" : "empty";
     lastAnswer = result.answer;
     answer.textContent =
       result.answer || "(The model ended its answer immediately.)";
@@ -179,6 +182,7 @@ form.addEventListener("submit", async (event) => {
     recentRuns.length = Math.min(recentRuns.length, 3);
     renderRuns();
   } catch (error) {
+    responsePanel.dataset.state = controller.signal.reason === "user" ? "cancelled" : "error";
     status.textContent =
       controller.signal.reason === "user" ? "Request cancelled" : "Try again";
     answer.textContent = controller.signal.aborted
@@ -194,6 +198,7 @@ form.addEventListener("submit", async (event) => {
     if (currentController === controller) currentController = null;
     responsePanel.setAttribute("aria-busy", "false");
     button.disabled = false;
+    button.setAttribute("aria-busy", "false");
     cancelButton.hidden = true;
   }
 });
