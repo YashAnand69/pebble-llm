@@ -1,0 +1,22 @@
+// Fixed vocabulary: BOS, EOS, PAD, UNK, 95 printable ASCII characters, newline, tab.
+export class Tokenizer {
+ fn init() {
+  this.characters = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\n\t";
+  this.bos = 0; this.eos = 1; this.pad = 2; this.unknown = 3;
+  this.lookup = {};
+  for i in range(len(this.characters)) { this.lookup[this.characters[i]] = i + 4; }
+ }
+ fn encode(text) {
+  let ids = [];
+  for character in text { ids.push(this.lookup[character] ?? this.unknown); }
+  return ids;
+ }
+ fn decode(ids) {
+  let text = "";
+  for id in ids {
+   if (id >= 4 && id < 101) { text += this.characters[id - 4]; }
+   else if (id == this.unknown) { text += "?"; }
+  }
+  return text;
+ }
+}

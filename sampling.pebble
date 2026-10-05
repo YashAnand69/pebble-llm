@@ -1,0 +1,14 @@
+export fn answerQuestion(model, tokenizer, question, maximum = 128, temperature = 0, topK = 20) {
+ let context = [tokenizer.bos, ...tokenizer.encode("Q: " + question + "\nA: ")];
+ let generated = [];
+ for step in range(maximum) {
+  if (len(context) > model.config.context) { context = context.slice(-model.config.context); }
+  const next = ml.scope(fn() {
+   const ids = ml.tensor(context, [1, len(context)], "int32");
+   return ml.sample(model.forward(ids), temperature, topK);
+  });
+  if (next == tokenizer.eos) { break; }
+  generated.push(next); context.push(next);
+ }
+ return tokenizer.decode(generated);
+}

@@ -1,0 +1,7 @@
+import { Transformer, config } from "./model.pebble";
+ml.seed(2026);
+const model = Transformer();
+assert(model.count() == 2000000, "Parameter count mismatch");
+print("Architecture:", config);
+print("Parameters:", model.count());
+print("Backend:", ml.backend());

@@ -1,0 +1,61 @@
+// Original synthetic curriculum. Every string and template is MIT-licensed.
+const topics = [
+ {name: "Pebble", answer: "Pebble is a small programming language."},
+ {name: "let", answer: "Use let to declare a mutable variable."},
+ {name: "const", answer: "A const binding cannot be reassigned."},
+ {name: "nil", answer: "Nil represents the absence of a value."},
+ {name: "lists", answer: "Lists are ordered collections of values."},
+ {name: "dictionaries", answer: "Dictionaries associate keys with values."},
+ {name: "functions", answer: "Functions accept arguments and return values."},
+ {name: "closures", answer: "Closures retain their lexical bindings."},
+ {name: "modules", answer: "Modules share explicit exports between files."},
+ {name: "classes", answer: "Classes create instances with fields and methods."},
+ {name: "loops", answer: "Loops repeat a block of statements."},
+ {name: "errors", answer: "Use try and catch to handle runtime errors."},
+ {name: "tensors", answer: "Tensors store numbers in multidimensional arrays."},
+ {name: "parameters", answer: "Parameters are weights learned during training."},
+ {name: "attention", answer: "Attention combines information from earlier tokens."},
+ {name: "training", answer: "Training updates weights to reduce prediction loss."},
+ {name: "loss", answer: "Loss measures how wrong a prediction is."},
+ {name: "gradients", answer: "Gradients describe how weights affect the loss."},
+ {name: "AdamW", answer: "AdamW updates weights using moments and decay."},
+ {name: "tokens", answer: "Tokens are the units a language model processes."},
+ {name: "context", answer: "Context is the sequence available to the model."},
+ {name: "softmax", answer: "Softmax converts scores into probabilities."},
+ {name: "seeds", answer: "A seed makes random choices reproducible."},
+ {name: "JSON", answer: "JSON encodes structured data as text."},
+ {name: "exports", answer: "Exports expose declarations to other modules."},
+ {name: "MIT", answer: "MIT permits reuse with the license notice."},
+ {name: "addition", answer: "Addition combines two numbers into their sum."},
+ {name: "CPU", answer: "A CPU executes general computational instructions."},
+ {name: "WASM", answer: "WASM runs portable compiled numerical kernels."},
+ {name: "checkpoints", answer: "Checkpoints preserve learned model weights."},
+ {name: "autodiff", answer: "Autodiff computes gradients through tensor operations."},
+ {name: "sampling", answer: "Sampling chooses a token from model probabilities."},
+ {name: "causal masking", answer: "Causal masking prevents access to future tokens."},
+ {name: "embeddings", answer: "Embeddings map token IDs to learned vectors."},
+ {name: "normalization", answer: "Normalization stabilizes the scale of activations."},
+ {name: "residuals", answer: "Residual connections add an input to a layer output."},
+ {name: "perplexity", answer: "Perplexity is the exponential of cross entropy."},
+ {name: "validation", answer: "Validation measures loss without updating weights."},
+ {name: "overfitting", answer: "Overfitting memorizes training patterns too closely."},
+ {name: "temperature", answer: "Temperature controls the sharpness of sampling."},
+];
+const trainFormats = ["What is %?", "Explain %.", "Define %.", "%?", "Tell me about %.", "What does % mean?"];
+const validationFormats = ["Describe %.", "Explain % simply."];
+const testFormats = ["How does % work?"];
+fn examples(formats) {
+ let result = [];
+ for topic in topics {
+  for format in formats {
+   const question = format.replace("%", topic.name);
+   assert(len(question) + len(topic.answer) + 9 <= 96, "Example exceeds 96 tokens");
+   result.push({topic: topic.name, question, answer: topic.answer});
+  }
+ }
+ return result;
+}
+const corpus = {train: examples(trainFormats), validation: examples(validationFormats), test: examples(testFormats)};
+io.writeText("data/corpus.json", stringifyJSON(corpus));
+io.writeText("data/manifest.json", stringifyJSON({license: "MIT", origin: "Original synthetic curriculum authored in prepare.pebble", topics: len(topics), train: len(corpus.train), validation: len(corpus.validation), test: len(corpus.test), split: "Held-out question formats on shared topics and shared answers; not unseen-topic generalization"}));
+print("Prepared", len(corpus.train), "training examples,", len(corpus.validation), "validation examples,", len(corpus.test), "test examples.");

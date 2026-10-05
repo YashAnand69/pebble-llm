@@ -1,0 +1,65 @@
+export fn encodeExamples(examples, tokenizer, length) {
+ let encoded = [];
+ for example in examples {
+  const prompt = [tokenizer.bos, ...tokenizer.encode("Q: " + example.question + "\nA: ")];
+  const answer = [...tokenizer.encode(example.answer), tokenizer.eos];
+  assert(len(prompt) + len(answer) - 1 <= length, "Example too long for the training sequence");
+  encoded.push({tokens: [...prompt, ...answer], promptLength: len(prompt)});
+ }
+ return encoded;
+}
+fn tensors(examples, length) {
+ let ids = []; let targets = [];
+ for example in examples {
+  for position in range(length) {
+   ids.push(position < len(example.tokens) - 1 ? example.tokens[position] : 2);
+   const next = position + 1;
+   targets.push(next >= example.promptLength && next < len(example.tokens) ? example.tokens[next] : -1);
+  }
+ }
+ return {ids: ml.tensor(ids, [len(examples), length], "int32"), targets: ml.tensor(targets, [len(examples), length], "int32")};
+}
+// Pack independently sampled documents so all 299 position embeddings receive supervision.
+// Prompt tokens and document boundaries are masked out of the answer loss.
+export fn makeBatch(examples, batchSize, length) {
+ let ids = []; let targets = [];
+ for row in range(batchSize) {
+  let position = 0;
+  while (position < length) {
+   const example = examples[ml.randint(len(examples))];
+   for index in range(len(example.tokens) - 1) {
+    if (position >= length) { break; }
+    ids.push(example.tokens[index]);
+    const next = index + 1;
+    targets.push(next >= example.promptLength ? example.tokens[next] : -1);
+    position++;
+   }
+  }
+ }
+ return {ids: ml.tensor(ids, [batchSize, length], "int32"), targets: ml.tensor(targets, [batchSize, length], "int32")};
+}
+export fn evaluateLoss(model, examples, length) {
+ let sumLoss = 0;
+ for example in examples {
+  sumLoss += ml.scope(fn() {
+   const batch = tensors([example], length);
+   return ml.item(model.loss(batch.ids, batch.targets));
+  });
+ }
+ return sumLoss / len(examples);
+}
+// Refinement uses one prompt per row, matching generation's position-zero layout.
+// An additional mask emphasizes the first 32 answer tokens.
+export fn makeSingleBatch(examples, batchSize, length) {
+ let selected = []; let focusTargets = [];
+ for row in range(batchSize) {
+  const example = examples[ml.randint(len(examples))];
+  selected.push(example);
+  for position in range(length) {
+   const next = position + 1;
+   focusTargets.push(next >= example.promptLength && next < len(example.tokens) && next < example.promptLength + 32 ? example.tokens[next] : -1);
+  }
+ }
+ const batch = tensors(selected, length);
+ return {ids: batch.ids, targets: batch.targets, focusTargets: ml.tensor(focusTargets, [batchSize, length], "int32")};
+}

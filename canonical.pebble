@@ -1,0 +1,21 @@
+// Evaluate the first seen training phrasing for each topic, separately from reserved test prompts.
+import { Transformer } from "./model.pebble";
+import { Tokenizer } from "./tokenizer.pebble";
+import { answerQuestion } from "./sampling.pebble";
+ml.seed(2026);
+const tokenizer = Tokenizer();
+const model = Transformer();
+const metadata = io.loadWeights("checkpoints/best.pebble-weights", model.parameters);
+const corpus = parseJSON(io.readText("data/corpus.json"));
+let topics = {}; let outputs = []; let matches = 0;
+for example in corpus.train {
+ if (example.topic in topics) { continue; }
+ topics[example.topic] = true;
+ const generated = answerQuestion(model, tokenizer, example.question, 100);
+ const exact = generated == example.answer;
+ if (exact) { matches++; }
+ outputs.push({question: example.question, expected: example.answer, generated, exact});
+ print(example.question, "=>", generated);
+}
+io.writeText("artifacts/canonical-evaluation.json", stringifyJSON({parameters: model.count(), checkpointStep: metadata.step, checkpointStage: metadata.stage ?? "pretraining", parentStep: metadata.parentStep, split: "First seen training phrasing per topic", exactMatches: matches, total: len(outputs), outputs}));
+print("Seen-format exact answers:", matches, "/", len(outputs));

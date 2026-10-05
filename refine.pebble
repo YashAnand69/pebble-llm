@@ -1,0 +1,50 @@
+import { Transformer, config } from "./model.pebble";
+import { Tokenizer } from "./tokenizer.pebble";
+import { makeSingleBatch, encodeExamples, evaluateLoss } from "./dataset.pebble";
+const steps = num(io.arg("--steps", "1000"));
+const batchSize = num(io.arg("--batch", "4"));
+const peakRate = num(io.arg("--lr", "0.0005"));
+const seed = num(io.arg("--seed", "2027"));
+const reportEvery = num(io.arg("--report-every", "100"));
+const length = 96;
+assert(steps >= 1 && steps <= 10000 && steps == floor(steps), "Invalid refinement steps");
+assert(batchSize >= 1 && batchSize <= 32 && batchSize == floor(batchSize), "Invalid batch size");
+assert(reportEvery >= 1 && reportEvery == floor(reportEvery) && peakRate > 0 && peakRate <= 0.1, "Invalid schedule");
+ml.seed(seed);
+const tokenizer = Tokenizer();
+const model = Transformer();
+const parent = io.loadWeights("checkpoints/best.pebble-weights", model.parameters);
+const corpus = parseJSON(io.readText("data/corpus.json"));
+const train = encodeExamples(corpus.train, tokenizer, length);
+const validation = encodeExamples(corpus.validation, tokenizer, length);
+// A fresh optimizer is intentional: this is a second experiment stage, not a resumed optimizer.
+const optimizer = ml.adamW(model.parameters, 0.05, 0.9, 0.95);
+const baseline = evaluateLoss(model, validation, length);
+let best = baseline; let bestStep = 0; let history = [];
+const started = io.now();
+print("Refinement baseline:", baseline, "parent checkpoint step:", parent.step);
+for step in range(1, steps + 1) {
+ const rate = peakRate * min(1, step / 25) * (0.1 + 0.9 * (1 + cos(PI * step / steps)) / 2);
+ const loss = ml.scope(fn() {
+  const batch = makeSingleBatch(train, batchSize, length);
+  return ml.minimize(optimizer, fn() {
+   const logits = model.forward(batch.ids);
+   const full = ml.crossEntropy(logits, batch.targets);
+   const focus = ml.crossEntropy(logits, batch.focusTargets);
+   return ml.div(ml.add(full, ml.mul(focus, 7)), 8);
+  }, rate, 1);
+ });
+ if (step == 1 || step % reportEvery == 0 || step == steps) {
+  const validationLoss = evaluateLoss(model, validation, length);
+  if (validationLoss < best) {
+   best = validationLoss; bestStep = step;
+   io.saveWeights("checkpoints/best.pebble-weights", model.parameters, {config, seed, stage: "refinement", parentStep: parent.step, step, validationLoss});
+  }
+  const record = {step, weightedTrainLoss: loss, validationLoss, rate, elapsedSeconds: (io.now() - started) / 1000};
+  history.push(record);
+  io.writeText("artifacts/refinement-history.json", stringifyJSON(history));
+  print("Refinement", step, "/", steps, "weighted train", loss, "validation", validationLoss, "seconds", record.elapsedSeconds);
+ }
+}
+io.writeText("artifacts/refinement-report.json", stringifyJSON({parameters: model.count(), config, seed, steps, batchSize, length, baseline, bestValidationLoss: best, bestStep, parentStep: parent.step, objective: "(full answer mean CE + 7 * first-32 answer-token mean CE) / 8", elapsedSeconds: (io.now() - started) / 1000, backend: ml.backend(), freshOptimizer: true}));
+print("Refinement complete. Best validation loss:", best);

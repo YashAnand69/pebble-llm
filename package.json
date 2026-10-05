@@ -1,0 +1,29 @@
+{
+  "name": "pebble-llm",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "An exactly 2M-parameter transformer defined and trained using the Pebble language",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YashAnand69/pebble-llm.git"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "prepare:data": "node scripts/pebble.mjs prepare.pebble --io --compute",
+    "inspect": "node scripts/pebble.mjs inspect.pebble --ml",
+    "train": "node scripts/pebble.mjs train.pebble --ml --io --compute --",
+    "generate": "node scripts/pebble.mjs generate.pebble --ml --io --compute --",
+    "evaluate": "node scripts/pebble.mjs evaluate.pebble --ml --io --compute --",
+    "test": "node --test tests/*.test.mjs",
+    "verify:artifacts": "node scripts/verify-artifacts.mjs",
+    "evaluate:canonical": "node scripts/pebble.mjs canonical.pebble --ml --io --compute",
+    "refine": "node scripts/pebble.mjs refine.pebble --ml --io --compute --"
+  },
+  "dependencies": {
+    "pebble": "https://github.com/YashAnand69/pebble/releases/download/v2.1.0/pebble-runtime-2.1.0.tgz"
+  }
+}

@@ -1,0 +1,13 @@
+import { Transformer, config } from "./model.pebble";
+import { Tokenizer } from "./tokenizer.pebble";
+import { answerQuestion } from "./sampling.pebble";
+ml.seed(num(io.arg("--seed", "2026")));
+const tokenizer = Tokenizer();
+const model = Transformer();
+io.loadWeights(io.arg("--checkpoint", "checkpoints/best.pebble-weights"), model.parameters);
+const question = io.arg("--prompt", "What is Pebble?");
+const temperature = num(io.arg("--temperature", "0"));
+const topK = num(io.arg("--top-k", "20"));
+const maximum = num(io.arg("--max-tokens", "128"));
+assert(maximum >= 1 && maximum <= 1000, "Choose 1 to 1000 generated tokens");
+print(answerQuestion(model, tokenizer, question, maximum, temperature, topK));

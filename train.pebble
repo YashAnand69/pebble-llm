@@ -1,0 +1,56 @@
+import { Transformer, config } from "./model.pebble";
+import { Tokenizer } from "./tokenizer.pebble";
+import { makeBatch, encodeExamples, evaluateLoss } from "./dataset.pebble";
+
+const steps = num(io.arg("--steps", "2000"));
+const batchSize = num(io.arg("--batch", "2"));
+const length = num(io.arg("--length", "299"));
+const peakRate = num(io.arg("--lr", "0.001"));
+const seed = num(io.arg("--seed", "2026"));
+const reportEvery = num(io.arg("--report-every", "100"));
+assert(steps >= 1 && steps <= 20000 && batchSize >= 1 && batchSize <= 32, "Invalid training size");
+assert(steps == floor(steps) && batchSize == floor(batchSize) && reportEvery >= 1 && reportEvery == floor(reportEvery), "Steps, batch and report interval must be positive integers");
+assert(peakRate > 0 && peakRate <= 0.1, "Learning rate must be between zero and 0.1");
+assert(length == floor(length), "Sequence length must be an integer");
+assert(length >= 16 && length <= config.context && batchSize * length <= 10000, "Invalid sequence shape");
+ml.seed(seed);
+const tokenizer = Tokenizer();
+const model = Transformer();
+assert(model.count() == 2000000, "Model must have exactly two million parameters");
+const corpus = parseJSON(io.readText("data/corpus.json"));
+const train = encodeExamples(corpus.train, tokenizer, length);
+const evaluationLength = 96;
+const validation = encodeExamples(corpus.validation, tokenizer, evaluationLength);
+const optimizer = ml.adamW(model.parameters, 0.05, 0.9, 0.95);
+const baseline = evaluateLoss(model, validation, evaluationLength);
+let best = baseline;
+let bestStep = 0;
+let history = [];
+const started = io.now();
+print("PebbleLM ·", model.count(), "parameters ·", ml.backend(), "backend");
+print("Initial validation loss:", baseline);
+io.saveWeights("checkpoints/best.pebble-weights", model.parameters, {config, seed, step: 0, validationLoss: baseline});
+
+for step in range(1, steps + 1) {
+  const warmup = min(1, step / 50);
+  const progress = min(1, step / steps);
+  const rate = peakRate * warmup * (0.1 + 0.9 * (1 + cos(PI * progress)) / 2);
+  const loss = ml.scope(fn() {
+    const batch = makeBatch(train, batchSize, length);
+    return ml.minimize(optimizer, fn() => model.loss(batch.ids, batch.targets), rate, 1);
+  });
+  if (step == 1 || step % reportEvery == 0 || step == steps) {
+    const validationLoss = evaluateLoss(model, validation, evaluationLength);
+    if (validationLoss < best) {
+      best = validationLoss; bestStep = step;
+      io.saveWeights("checkpoints/best.pebble-weights", model.parameters, {config, seed, step, validationLoss});
+    }
+    const record = {step, trainLoss: loss, validationLoss, rate, elapsedSeconds: (io.now() - started) / 1000};
+    history.push(record);
+    io.writeText("artifacts/training-history.json", stringifyJSON(history));
+    print("Step", step, "/", steps, "train", loss, "validation", validationLoss, "seconds", record.elapsedSeconds);
+  }
+}
+io.saveWeights("checkpoints/final.pebble-weights", model.parameters, {config, seed, step: steps});
+io.writeText("artifacts/training-report.json", stringifyJSON({parameters: model.count(), config, seed, steps, batchSize, length, evaluationLength, baseline, bestValidationLoss: best, bestStep, elapsedSeconds: (io.now() - started) / 1000, backend: ml.backend()}));
+print("Training finished. Best validation loss:", best, "at step", bestStep);

@@ -1,0 +1,23 @@
+import { Transformer } from "./model.pebble";
+import { Tokenizer } from "./tokenizer.pebble";
+import { encodeExamples, evaluateLoss } from "./dataset.pebble";
+import { answerQuestion } from "./sampling.pebble";
+ml.seed(2026);
+const tokenizer = Tokenizer();
+const model = Transformer();
+const metadata = io.loadWeights("checkpoints/best.pebble-weights", model.parameters);
+const corpus = parseJSON(io.readText("data/corpus.json"));
+const length = num(io.arg("--length", "96"));
+const test = encodeExamples(corpus.test, tokenizer, length);
+const loss = evaluateLoss(model, test, length);
+let outputs = []; let matches = 0;
+for example in corpus.test {
+ const generated = answerQuestion(model, tokenizer, example.question, 100);
+ const exact = generated == example.answer;
+ if (exact) { matches++; }
+ outputs.push({question: example.question, expected: example.answer, generated, exact});
+ print(example.question, "=>", generated);
+}
+const report = {parameters: model.count(), checkpointStep: metadata.step, checkpointStage: metadata.stage ?? "pretraining", parentStep: metadata.parentStep, testLoss: loss, perplexity: E ** loss, exactMatches: matches, total: len(outputs), outputs};
+io.writeText("artifacts/evaluation.json", stringifyJSON(report));
+print("Test loss:", loss, "exact answers:", matches, "/", len(outputs));

@@ -1,0 +1,1 @@
+{"license":"MIT","origin":"Original synthetic curriculum authored in prepare.pebble","topics":40,"train":240,"validation":80,"test":40,"split":"Held-out question formats on shared topics and shared answers; not unseen-topic generalization"}
