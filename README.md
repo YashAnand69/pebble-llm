@@ -113,3 +113,7 @@ AdamW uses betas 0.9/0.95, weight decay 0.05, global gradient clipping at 1.0, a
 | `tests/` | Parameter count, causality, tokenizer and training checks |
 
 See [MODEL_CARD.md](MODEL_CARD.md) for measured results and limitations, [CONTRIBUTING.md](CONTRIBUTING.md) to contribute, and [LICENSE](LICENSE) for MIT terms. TensorFlow.js and its WASM backend retain their Apache-2.0 licenses.
+
+## Pebble Sentinel
+
+[Pebble Sentinel](https://pebble-sentinel.vercel.app/) applies Pebble to a pre-execution guard for AI agent tools. Its separate 1,288,368-parameter model is trained in Pebble on typed benign workflows. The [public MIT repository](https://github.com/YashAnand69/pebble-sentinel) includes the local guard, adapters, three trained seeds and evaluation limitations.
