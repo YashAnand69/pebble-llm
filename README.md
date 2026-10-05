@@ -8,6 +8,8 @@ This is a small educational language model for a 40-topic Pebble/programming/ML 
 
 ## Web playground and deployment
 
+[Open the verified PebbleLM playground](https://pebble-llm.vercel.app/).
+
 The playground is a static page with a Vercel Node function at `/api/generate`. The function runs the released checkpoint on the WASM CPU backend; it does not call an external AI provider. The existing design, model, data and weights are preserved.
 
 Use Node 24 and run `npm ci`, `npm test`, then `npm run build`. The build verifies all released artifact hashes before copying the public result reports. In Vercel, import this repository, use the **Other** framework preset, Node **24.x**, and the repository root. `vercel.json` supplies the install/build commands, public output directory, 60-second function limit and required model/WASM files. Pushes to `main` deploy production when the Vercel Git integration is connected.
