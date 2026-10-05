@@ -6,6 +6,10 @@ The network, tokenizer, corpus generator, batching, learning-rate schedule, trai
 
 This is a small educational language model for a 40-topic Pebble/programming/ML curriculum. Its reserved prompts test new wording of **seen topics with shared answers**. It is not a general assistant or an unseen-knowledge benchmark.
 
+## Usage guide
+
+See [GUIDE.md](GUIDE.md) for a walkthrough of prompting, sampling, local inference, the JSON endpoint, retraining and troubleshooting. The [web guide](https://pebble-llm.vercel.app/guide.html) provides copyable commands alongside the model showcase.
+
 ## Web playground and deployment
 
 [Open the verified PebbleLM playground](https://pebble-llm.vercel.app/).

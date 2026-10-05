@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#162b24" />
+    <meta
+      name="description"
+      content="Learn to use PebbleLM: prompt the live demo, run the released 2M model locally, call its JSON API, and reproduce training."
+    />
+    <title>Using PebbleLM — the practical guide</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/style.css" />
+    <script src="/site.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header>
+      <a class="brand" href="/" aria-label="PebbleLM home"
+        >pebble<span>LM</span><i>2M</i></a
+      >
+      <nav aria-label="Main">
+        <a href="/#model">The model</a><a href="/#playground">Playground</a
+        ><a href="/guide.html" aria-current="page">Usage guide</a
+        ><a href="https://github.com/YashAnand69/pebble-llm">GitHub ↗</a>
+      </nav>
+    </header>
+    <main id="main" class="guide-main">
+      <div class="guide-hero">
+        <p class="eyebrow">THE PRACTICAL GUIDE / V1.0</p>
+        <h1>Start with a question.<br /><em>Keep going in code.</em></h1>
+        <p class="intro">
+          Try the demo, run the released weights on your CPU, or trace the whole
+          transformer in Pebble. Here's how to get started—and what to expect.
+        </p>
+        <a class="text-link" href="/results/usage-guide.md" download
+          >Download the complete Markdown guide ↓</a
+        >
+      </div>
+      <div class="guide-layout">
+        <aside>
+          <nav aria-label="Guide contents">
+            <a href="#playground">01 / Use the playground</a
+            ><a href="#limits">02 / Know the limits</a
+            ><a href="#local">03 / Run locally</a
+            ><a href="#api">04 / Call the API</a
+            ><a href="#training">05 / Retrain & evaluate</a
+            ><a href="#troubleshooting">06 / Troubleshooting</a>
+          </nav>
+          <a class="text-link" href="/#playground">Open the live demo ↗</a>
+        </aside>
+        <div class="guide-content">
+          <section id="playground">
+            <p class="eyebrow">01 / FIRST PREDICTION</p>
+            <h2>Use the playground.</h2>
+            <p>
+              Begin with <code>What is Pebble?</code>,
+              <code>What is attention?</code>, <code>What is tensors?</code> or
+              <code>What is functions?</code>.
+            </p>
+            <ol>
+              <li>
+                Enter a short question using
+                <strong>1–160 ASCII characters</strong>.
+              </li>
+              <li>
+                Keep temperature at <strong>0</strong> for greedy generation
+                with seed 2026.
+              </li>
+              <li>
+                Select <strong>Generate answer</strong>. CPU inference may take
+                a few seconds.
+              </li>
+              <li>
+                Read the result, compare it with the recorded examples, and use
+                <strong>Copy answer</strong> if you want to keep it.
+              </li>
+            </ol>
+            <p>
+              The web demo generates up to 96 character tokens and may stop
+              earlier at EOS. Higher temperature, up to 1, adds randomness; it
+              doesn't increase accuracy. Inference runs on the server using the
+              released checkpoint, not on your device.
+            </p>
+            <div class="guide-callout">
+              <strong>Try a wording experiment.</strong>
+              <p>
+                Compare “What is attention?” with “How does attention work?” The
+                example explorer shows recorded generations; its “Try this
+                question live” button fills the playground. Select Generate to
+                run a fresh prediction.
+              </p>
+            </div>
+            <a class="button" href="/#playground"
+              >Try the playground <span>↗</span></a
+            >
+          </section>
+          <section id="limits">
+            <p class="eyebrow">02 / SET EXPECTATIONS</p>
+            <h2>A small model.<br />A specific task.</h2>
+            <p>
+              PebbleLM learns short answers from a forty-topic synthetic
+              curriculum. It isn't trained for general chat, reliable coding
+              advice, new knowledge or conversation memory.
+            </p>
+            <div class="guide-metrics">
+              <div>
+                <strong>38 / 40</strong
+                ><span>exact answers on seen wording</span>
+              </div>
+              <div>
+                <strong>4 / 40</strong
+                ><span>exact answers on reserved wording</span>
+              </div>
+            </div>
+            <p>
+              Topics and target answers overlap across splits. The results test
+              phrasing, not broad intelligence. Fluent output can still describe
+              the wrong topic.
+            </p>
+            <ul>
+              <li>
+                <strong>101-token vocabulary:</strong> printable ASCII, newline,
+                tab and four special tokens. The web demo rejects non-ASCII; the
+                CLI maps unsupported characters to UNK.
+              </li>
+              <li>
+                <strong>299-position context:</strong> character tokens, not
+                words. This does not imply long-context capability.
+              </li>
+              <li>
+                <strong>No retrieval or tools:</strong> there is no search, chat
+                history or instruction hierarchy.
+              </li>
+            </ul>
+            <a
+              class="text-link"
+              href="https://github.com/YashAnand69/pebble-llm/blob/main/MODEL_CARD.md"
+              >Read the full model card ↗</a
+            >
+          </section>
+          <section id="local">
+            <p class="eyebrow">03 / YOUR MACHINE, YOUR WEIGHTS</p>
+            <h2>Run it on your CPU.</h2>
+            <p>
+              Install <strong>Node 24, Git and npm</strong>. You don't need a
+              GPU, Python trainer, external model provider or API key.
+            </p>
+            <div class="guide-code">
+              <button
+                class="copy-button"
+                type="button"
+                data-copy="local-command"
+              >
+                Copy code
+              </button>
+              <pre><code id="local-command">git clone https://github.com/YashAnand69/pebble-llm.git
+cd pebble-llm
+npm ci
+npm run verify:artifacts
+npm run inspect
+npm run generate -- --prompt "What is Pebble?" --temperature 0 --max-tokens 96 --seed 2026</code></pre>
+            </div>
+            <p>
+              <code>inspect</code> confirms two million parameters and the WASM
+              backend. <code>verify:artifacts</code> checks the released file
+              hashes. The checkpoint is approximately 8 MB; runtime memory also
+              includes tensor buffers, activations and the interpreter.
+            </p>
+            <h3>Explore sampling</h3>
+            <div class="guide-code">
+              <button
+                class="copy-button"
+                type="button"
+                data-copy="sampling-command"
+              >
+                Copy code
+              </button>
+              <pre><code id="sampling-command">npm run generate -- --prompt "What is attention?" --temperature 0.5 --top-k 10 --max-tokens 96</code></pre>
+            </div>
+            <p>
+              The CLI also supports <code>--checkpoint</code> and
+              <code>--seed</code>. Its <code>--max-tokens</code> range is
+              1–1000. It loads <code>checkpoints/best.pebble-weights</code> by
+              default. A longer output limit does not fix model quality.
+            </p>
+            <h3>Run the website locally</h3>
+            <div class="guide-code">
+              <button
+                class="copy-button"
+                type="button"
+                data-copy="website-command"
+              >
+                Copy code
+              </button>
+              <pre><code id="website-command">npm run build
+npx vercel link
+npx vercel dev</code></pre>
+            </div>
+            <p>
+              Choose your Vercel project when linking. Serving
+              <code>public/</code> alone previews the page but does not run
+              inference. Vercel account access is needed for this workflow; no
+              application environment variables are required.
+            </p>
+          </section>
+          <section id="api">
+            <p class="eyebrow">04 / A SMALL JSON INTERFACE</p>
+            <h2>Call the demo API.</h2>
+            <p>
+              Send a POST request from your terminal or server-side code. No
+              model API key is needed.
+            </p>
+            <div class="guide-code">
+              <button
+                class="copy-button"
+                type="button"
+                data-copy="curl-command"
+              >
+                Copy code
+              </button>
+              <pre><code id="curl-command">curl https://pebble-llm.vercel.app/api/generate \
+  -H 'Content-Type: application/json' \
+  --data '{"prompt":"What is Pebble?","temperature":0}'</code></pre>
+            </div>
+            <div class="guide-table">
+              <table>
+                <caption>
+                  Request fields
+                </caption>
+                <thead>
+                  <tr>
+                    <th>Field</th>
+                    <th>Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><code>prompt</code></td>
+                    <td>Required string; 1–160 ASCII characters</td>
+                  </tr>
+                  <tr>
+                    <td><code>temperature</code></td>
+                    <td>Optional number from 0 to 1; defaults to 0</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <p>
+              A successful response includes <code>answer</code>,
+              <code>parameters</code> (2000000) and <code>elapsedMs</code>.
+              Elapsed time measures the model run and varies by question and
+              server conditions.
+            </p>
+            <h3>Node 24 / server-side JavaScript</h3>
+            <div class="guide-code">
+              <button class="copy-button" type="button" data-copy="js-command">
+                Copy code
+              </button>
+              <pre><code id="js-command">const response = await fetch(
+  'https://pebble-llm.vercel.app/api/generate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      prompt: 'What is Pebble?', temperature: 0
+    })
+  }
+);
+const result = await response.json();
+if (!response.ok) throw new Error(result.error);
+console.log(result.answer);</code></pre>
+            </div>
+            <p>
+              Use the full URL from server-side code. Same-origin browser code
+              can use <code>/api/generate</code>; cross-origin browser requests
+              are not supported by the API's CORS policy.
+            </p>
+            <p>
+              Invalid input returns <strong>400</strong>. Unsupported methods
+              return <strong>405</strong> with <code>Allow: POST</code>. Failed
+              inference returns a generic <strong>500</strong>. Platform
+              timeouts may return non-JSON responses, so handle those in real
+              integrations.
+            </p>
+            <div class="guide-callout">
+              <strong>A demo endpoint, not a high-volume contract.</strong>
+              <p>
+                The output is capped at 96 character tokens and responses aren't
+                cached. For an independent application, run your own copy and
+                choose appropriate traffic controls.
+              </p>
+            </div>
+          </section>
+          <section id="training">
+            <p class="eyebrow">05 / READ, CHANGE, REPEAT</p>
+            <h2>Retrain and evaluate.</h2>
+            <p>
+              Start with
+              <a
+                href="https://github.com/YashAnand69/pebble-llm/blob/main/model.pebble"
+                >model.pebble</a
+              >, tokenizer.pebble and sampling.pebble. The architecture uses
+              four decoder blocks, four heads, width 200, causal attention,
+              pre-LayerNorm and tied embeddings.
+            </p>
+            <div class="guide-callout">
+              <strong>Use a separate clone for experiments.</strong>
+              <p>
+                Training overwrites local checkpoints and reports. Release
+                hashes will no longer match afterward. Checkpoints contain
+                weights and metadata, not optimizer moments for seamless resume.
+              </p>
+            </div>
+            <div class="guide-code">
+              <button
+                class="copy-button"
+                type="button"
+                data-copy="training-command"
+              >
+                Copy code
+              </button>
+              <pre><code id="training-command">npm test
+npm run prepare:data
+npm run train -- --steps 2000 --batch 2 --length 299 --seed 2026 --lr 0.001 --report-every 100
+npm run refine -- --steps 1000 --batch 4 --seed 2027 --lr 0.0005 --report-every 100
+npm run evaluate
+npm run evaluate:canonical</code></pre>
+            </div>
+            <p>
+              Validation selects the checkpoint; keep reserved prompts out of
+              training and selection. The published main run took 43.27 minutes
+              and refinement took 12.16 minutes on an Apple M5 Pro. Your machine
+              may differ.
+            </p>
+            <a
+              class="text-link"
+              href="https://github.com/YashAnand69/pebble-llm#reproduce-training"
+              >Read the full training protocol ↗</a
+            >
+          </section>
+          <section id="troubleshooting">
+            <p class="eyebrow">06 / WHEN SOMETHING LOOKS WRONG</p>
+            <h2>Troubleshooting.</h2>
+            <details>
+              <summary>The model gives a wrong or garbled answer</summary>
+              <p>
+                Use a canonical “What is ...?” question and temperature 0.
+                Unknown topics and unfamiliar phrasings can fail. This may be a
+                model limitation rather than an API error.
+              </p>
+            </details>
+            <details>
+              <summary>My question is rejected</summary>
+              <p>
+                Use 1–160 ASCII characters in the web demo. Remove emoji and
+                unsupported characters; don't send an empty question. API
+                temperature must be a number between 0 and 1.
+              </p>
+            </details>
+            <details>
+              <summary>Inference times out or is unavailable</summary>
+              <p>
+                Retry once with a shorter question. API clients should check
+                HTTP status and handle non-JSON errors from the hosting
+                platform.
+              </p>
+            </details>
+            <details>
+              <summary>Local setup fails</summary>
+              <p>
+                Use Node 24 and run npm ci from the repository root. Verify the
+                checkpoint is present and the released artifacts pass npm run
+                verify:artifacts.
+              </p>
+            </details>
+            <details>
+              <summary>Artifact verification reports a mismatch</summary>
+              <p>
+                Restore official artifacts from Git before deploying, or publish
+                a newly evaluated release with its own provenance. Don't disable
+                the verification gate.
+              </p>
+            </details>
+            <p class="fine">
+              Code, original data and released weights are MIT licensed.
+              TensorFlow.js/WASM dependencies retain their Apache-2.0 licenses.
+            </p>
+          </section>
+          <p
+            id="copy-feedback"
+            class="guide-copy-feedback"
+            role="status"
+            aria-live="polite"
+          ></p>
+        </div>
+      </div>
+    </main>
+    <footer>
+      <a class="brand" href="/">pebble<span>LM</span></a>
+      <p>Made by Yash Anand · Code, data & weights: MIT</p>
+      <div>
+        <a href="/#playground">Playground</a
+        ><a href="https://github.com/YashAnand69/pebble-llm"
+          >Source & weights ↗</a
+        >
+      </div>
+    </footer>
+  </body>
+</html>
