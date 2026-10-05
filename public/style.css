@@ -3037,7 +3037,7 @@ textarea:focus-visible {
   font-size: 10px;
   color: var(--muted);
 }
-.model-local-nav a:last-child {
+.model-local-nav a:last-of-type {
   margin-left: auto;
 }
 .model-local-nav a[aria-current] {
@@ -3143,7 +3143,14 @@ html {
   .motion-ready .reveal { transition: none; }
 }
 
-.motion-toggle { position:absolute; right:12px; bottom:6px; padding:3px 7px; font-size:10px; border:1px solid var(--line); border-radius:99px; background:var(--paper); color:var(--muted); cursor:pointer; }
+.motion-toggle { flex-shrink:0; min-height:28px; padding:3px 7px; font-size:10px; border:1px solid var(--line); border-radius:99px; background:var(--paper); color:var(--muted); cursor:pointer; }
 header { position:sticky; }
 html[data-motion="off"] *, html[data-motion="off"] *::before, html[data-motion="off"] *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; }
 html[data-motion="off"] .reveal { opacity:1 !important; transform:none !important; }
+
+@media (max-width:720px) {
+ .model-local-nav { flex-wrap:wrap; overflow:visible; gap:8px 16px; }
+ .model-local-nav .motion-toggle { margin-left:auto; }
+ html { scroll-padding-top:140px; }
+}
+.motion-ready .reveal:focus-within { opacity:1; transform:none; }
