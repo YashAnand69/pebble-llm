@@ -4,3 +4,7 @@ node_modules/
 *.tmp-*
 checkpoints/final.pebble-weights
 artifacts/benchmark-*
+.vercel/
+public/results/
+pebble-llm/
+.vercel

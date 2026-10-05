@@ -1,0 +1,100 @@
+{
+  "formatVersion": 1,
+  "parameters": 2000000,
+  "config": {
+    "vocab": 101,
+    "context": 299,
+    "width": 200,
+    "heads": 4,
+    "layers": 4,
+    "expansion": 800
+  },
+  "license": "MIT",
+  "createdDate": "2026-10-05",
+  "trainingSourceCommit": "c9e1a0f5b64cd97431a40264daeba29a572bc0b4",
+  "environment": {
+    "hardware": "Apple M5 Pro",
+    "memoryGiB": 24,
+    "node": "24.19.0",
+    "tensorflowJS": "4.22.0",
+    "backend": "wasm",
+    "platform": "darwin-arm64"
+  },
+  "runtime": {
+    "publishedVersion": "2.1.1",
+    "publishedSourceCommit": "9c6ae81b4cc5cfc2b46b1f38ac55484a2ee035cd",
+    "pretrainingVersion": "2.1.0",
+    "pretrainingSourceCommit": "9af39e108813e04036800972f76eb76d5ebfc1ad",
+    "note": "Runtime safety and packaging fixes after pretraining started did not change tensor kernels or model math."
+  },
+  "commands": {
+    "pretraining": "npm run train -- --steps 2000 --batch 2 --length 299 --seed 2026 --lr 0.001 --report-every 100",
+    "refinement": "npm run refine -- --steps 1000 --batch 4 --seed 2027 --lr 0.0005 --report-every 100",
+    "evaluation": "npm run evaluate",
+    "canonical": "npm run evaluate:canonical"
+  },
+  "selection": "Unweighted validation answer loss only; reserved test evaluated after both stages completed.",
+  "dataOrigin": "Original synthetic 40-topic MIT curriculum; seen topics and shared answers across splits. No external dataset or pretrained weights.",
+  "pretraining": {
+    "parameters": 2000000,
+    "config": {
+      "vocab": 101,
+      "context": 299,
+      "width": 200,
+      "heads": 4,
+      "layers": 4,
+      "expansion": 800
+    },
+    "seed": 2026,
+    "steps": 2000,
+    "batchSize": 2,
+    "length": 299,
+    "evaluationLength": 96,
+    "baseline": 4.708596181869507,
+    "bestValidationLoss": 0.06528366435959469,
+    "bestStep": 2000,
+    "elapsedSeconds": 2596.397,
+    "backend": "wasm"
+  },
+  "refinement": {
+    "parameters": 2000000,
+    "config": {
+      "vocab": 101,
+      "context": 299,
+      "width": 200,
+      "heads": 4,
+      "layers": 4,
+      "expansion": 800
+    },
+    "seed": 2027,
+    "steps": 1000,
+    "batchSize": 4,
+    "length": 96,
+    "baseline": 0.06528366435959469,
+    "bestValidationLoss": 0.055105058578192256,
+    "bestStep": 700,
+    "parentStep": 2000,
+    "objective": "(full answer mean CE + 7 * first-32 answer-token mean CE) / 8",
+    "elapsedSeconds": 729.707,
+    "backend": "wasm",
+    "freshOptimizer": true
+  },
+  "selected": {
+    "stage": "refinement",
+    "step": 700,
+    "parentStep": 2000
+  },
+  "sha256": {
+    "data/corpus.json": "6e07244da185d9f802704b1d3c06f3980111bfa00bbfb5db27816656a9c68f3f",
+    "data/manifest.json": "afd5c2be5b4a4e0b705cbbbf64cfad4c640f64fc375704418ccebae1c7df4be5",
+    "artifacts/canonical-evaluation.json": "7b7c5331cb016d84df7a7f2869a9dc75139eee28d766264cd4eeb3e5075ef492",
+    "artifacts/evaluation.json": "21c390a84e44588cbaa533a9ee002d2d678b58c923beddbcf4d55562b0849487",
+    "artifacts/refinement-history.json": "d4026136a6e6a352f2bb31c3cb44d67c921a263d81f5d4809f24974bfedc1587",
+    "artifacts/refinement-report.json": "05300c4d93f595d6d1be7cbb49d6e4c7a247de930b839289b8414a6a478b9d4a",
+    "artifacts/training-curve.png": "edc1eb5f13299a7833c7b0daa56bd9abf4f6326a95823b85b64bc09ae8834fcf",
+    "artifacts/training-curve.svg": "bcfaa4b13fbc54f0fb3c919bb92dc4d9996c6ab721f15f48aacdb9bc1bc36f3e",
+    "artifacts/training-history.json": "bb08bd293266e2c6cf87278892e01defe3611e8547dac1a0c7bf659926624c92",
+    "artifacts/training-report.json": "1494fe72cf6fe11e7cdc4049268e364fa0cb8793e4a5124ea79f4347b18c9253",
+    "checkpoints/best.pebble-weights": "9e1886fbfcb3e196be540d0bca4c061d240a46555e8af91f30b755eea679fbdc"
+  }
+}

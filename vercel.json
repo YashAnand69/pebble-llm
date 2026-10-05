@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "framework": null,
+  "buildCommand": "npm run build:web",
+  "outputDirectory": "public",
+  "functions": {"api/generate.js": {"maxDuration": 60, "includeFiles": "{*.pebble,checkpoints/best.pebble-weights,node_modules/pebble/**,node_modules/@tensorflow/tfjs-backend-wasm/dist/**}"}},
+  "headers": [{"source": "/(.*)", "headers": [{"key":"X-Content-Type-Options","value":"nosniff"},{"key":"Referrer-Policy","value":"strict-origin-when-cross-origin"}]}]
+}

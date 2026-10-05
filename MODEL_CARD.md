@@ -26,7 +26,25 @@ Validation uses individual padded 96-position examples, with learned positions r
 
 A second stage refines the selected checkpoint for 1,000 updates using batch 4 with single 96-position documents and a fresh optimizer. Its objective is `(full answer mean CE + 7 * first-32 answer-token mean CE) / 8`. Seed 2027, peak rate 0.0005, 25-step warmup, cosine decay to 0.00005; other AdamW settings stay the same. This trains on the same training split and is designed to improve answer beginnings and the position-zero generation layout. Selection still uses unweighted validation loss; test prompts remain untouched until final evaluation. If refinement does not improve validation, the earlier checkpoint is retained.
 
-Measured results and artifact hashes are recorded in `artifacts/training-report.json`, `artifacts/evaluation.json` and `artifacts/provenance.json` after the run completes. The training history includes every selection checkpoint, not every optimizer update. The reported training duration excludes model construction and initial baseline validation.
+Measured results and artifact hashes are recorded in `artifacts/training-report.json`, `artifacts/refinement-report.json`, `artifacts/evaluation.json` and `artifacts/provenance.json`. The training history includes every selection checkpoint, not every optimizer update. The reported training duration excludes model construction and initial baseline validation.
+
+## Measured results
+
+| Measurement | Result |
+| --- | --- |
+| Trainable parameters | **2,000,000** |
+| Initial validation answer loss | 4.708596 nats |
+| Selected validation answer loss | 0.055105 nats |
+| Reserved test answer loss | 0.235773 nats |
+| Reserved test perplexity | 1.265887 |
+| Reserved phrasing greedy exact answers | **4 / 40** |
+| Seen training phrasing greedy exact answers | 38 / 40 |
+| Main training duration | 43.27 minutes |
+| Refinement duration | 12.16 minutes |
+
+Selected checkpoint: refinement, step 700, initialized from pretraining step 2000. Measured on an Apple M5 Pro with 24 GiB RAM, Node 24.19.0 and TensorFlow.js 4.22.0 WASM CPU kernels. Durations exclude construction and initial baseline validation. Exact match uses greedy generation, up to 100 tokens; every answer, including failures, is published in [artifacts/evaluation.json](artifacts/evaluation.json). These results cover held-out phrasings of **seen topics with shared answers**.
+
+![Measured training curve](artifacts/training-curve.svg)
 
 ## Reproducibility
 

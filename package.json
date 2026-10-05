@@ -21,9 +21,10 @@
     "test": "node --test tests/*.test.mjs",
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
     "evaluate:canonical": "node scripts/pebble.mjs canonical.pebble --ml --io --compute",
-    "refine": "node scripts/pebble.mjs refine.pebble --ml --io --compute --"
+    "refine": "node scripts/pebble.mjs refine.pebble --ml --io --compute --",
+    "build:web": "node scripts/build-web.mjs"
   },
   "dependencies": {
-    "pebble": "https://github.com/YashAnand69/pebble/releases/download/v2.1.0/pebble-runtime-2.1.0.tgz"
+    "pebble": "https://github.com/YashAnand69/pebble/releases/download/v2.1.1/pebble-runtime-2.1.1.tgz"
   }
 }

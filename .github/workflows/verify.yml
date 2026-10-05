@@ -1,4 +1,4 @@
-name: Verify PebbleLM source
+name: Verify PebbleLM
 on: [push, pull_request]
 jobs:
   model:
@@ -9,7 +9,16 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
+      - run: npm run verify:artifacts
       - run: npm test
       - run: npm run inspect
+      - run: npm run build:web
       - run: npm run prepare:data
-      - run: git diff --exit-code -- data/
+      - name: Confirm corpus is reproducible
+        run: git diff --exit-code -- data/
+      - name: Sample the released checkpoint
+        run: npm run generate -- --prompt "What is Pebble?" --max-tokens 64
+      - name: Train a disposable one-step smoke model
+        run: npm run train -- --steps 1 --batch 1 --length 96 --report-every 1
+      - name: Check the refinement program
+        run: npm run refine -- --steps 1 --batch 1 --report-every 1

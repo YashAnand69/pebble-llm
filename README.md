@@ -1,14 +1,12 @@
 # PebbleLM · 2M
 
-> Release preparation: the longer training run is in progress. The source, original dataset and exact parameter-count checks are ready; selected weights and measured results will be added after training and final evaluation. You can already inspect or train the model locally.
-
 An **exactly 2,000,000-parameter** character-level transformer defined and trained using the [Pebble programming language](https://github.com/YashAnand69/pebble). Source, original curriculum and the released weights are MIT licensed.
 
 The network, tokenizer, corpus generator, batching, learning-rate schedule, training loop, sampling and evaluation are `.pebble` programs. Pebble's optional Node extension supplies TensorFlow.js/WASM tensor kernels, automatic differentiation and AdamW. This is a real trained transformer, with no external LLM API and no Python trainer.
 
 This is a small educational language model for a 40-topic Pebble/programming/ML curriculum. Its reserved prompts test new wording of **seen topics with shared answers**. It is not a general assistant or an unseen-knowledge benchmark.
 
-## Run locally (inference needs the forthcoming checkpoint)
+## Run the released model
 
 Use Node 24 (minimum 22.13).
 
@@ -16,12 +14,31 @@ Use Node 24 (minimum 22.13).
 git clone https://github.com/YashAnand69/pebble-llm.git
 cd pebble-llm
 npm ci
+npm run verify:artifacts
 npm run inspect
 npm run generate -- --prompt "What is Pebble?"
 npm run generate -- --prompt "Explain attention." --temperature 0.5 --top-k 10
 ```
 
 The CLI runner only launches the Pebble interpreter. The standalone runtime dependency is pinned to the Pebble 2.1 release tarball, with an integrity hash in the lockfile. It contains the interpreter and ML extension without the studio UI dependencies. No API keys or cloud compute are required. Inference runs locally on the CPU using WASM, with float32 weights.
+
+## Measured results
+
+| Measurement | Result |
+| --- | --- |
+| Trainable parameters | **2,000,000** |
+| Initial validation answer loss | 4.708596 nats |
+| Selected validation answer loss | 0.055105 nats |
+| Reserved test answer loss | 0.235773 nats |
+| Reserved test perplexity | 1.265887 |
+| Reserved phrasing greedy exact answers | **4 / 40** |
+| Seen training phrasing greedy exact answers | 38 / 40 |
+| Main training duration | 43.27 minutes |
+| Refinement duration | 12.16 minutes |
+
+Selected checkpoint: refinement, step 700, initialized from pretraining step 2000. Measured on an Apple M5 Pro with 24 GiB RAM, Node 24.19.0 and TensorFlow.js 4.22.0 WASM CPU kernels. Durations exclude construction and initial baseline validation. Exact match uses greedy generation, up to 100 tokens; every answer, including failures, is published in [artifacts/evaluation.json](artifacts/evaluation.json). These results cover held-out phrasings of **seen topics with shared answers**.
+
+![Measured training curve](artifacts/training-curve.svg)
 
 ## Architecture
 
@@ -54,10 +71,9 @@ npm run train -- --steps 2000 --batch 2 --length 299 --seed 2026 --lr 0.001 --re
 npm run refine -- --steps 1000 --batch 4 --seed 2027 --lr 0.0005 --report-every 100
 npm run evaluate
 npm run evaluate:canonical
-npm run verify:artifacts
 ```
 
-Training overwrites local checkpoint and report files. `best.pebble-weights` is selected only by validation answer loss; `final.pebble-weights` is an ignored final-iteration snapshot. Optimizer moments are not saved, so checkpoints support inference, not seamless training resume.
+Training overwrites local checkpoint and report files. Verify artifact hashes before retraining; the release hashes deliberately no longer match after a new run. `best.pebble-weights` is selected only by validation answer loss; `final.pebble-weights` is an ignored final-iteration snapshot. Optimizer moments are not saved, so checkpoints support inference, not seamless training resume.
 
 `prepare.pebble` authors 40 topics with six training formats (240 examples), two validation formats (80) and one reserved test format (40). Complete prompts differ across splits, but each topic's answer is shared. The fixed vocabulary contains 95 printable ASCII characters, newline, tab and four special tokens. Non-ASCII characters become UNK. Prompts and padding are excluded from cross entropy; EOS is supervised.
 
