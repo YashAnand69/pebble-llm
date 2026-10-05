@@ -1,4 +1,5 @@
 import { mkdir, copyFile, readFile, writeFile } from "node:fs/promises";
+import "./verify-web.mjs";
 import { createShowcase } from "./showcase.mjs";
 import "./verify-artifacts.mjs";
 await mkdir("public/results", { recursive: true });

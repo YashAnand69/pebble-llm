@@ -6,53 +6,140 @@ const status = document.querySelector("#status");
 const timing = document.querySelector("#timing");
 const temperature = document.querySelector("#temperature");
 const responsePanel = document.querySelector(".response");
+const cancelButton = document.querySelector("#cancel");
+const copyButton = document.querySelector("#copy-answer");
+const recentRuns = [];
+let currentController = null;
+let lastAnswer = "";
+const validPrompt = (value) =>
+  typeof value === "string" &&
+  value.trim().length > 0 &&
+  value.length <= 160 &&
+  /^[\x20-\x7e\n\t]+$/.test(value);
 
+function updateCount() {
+  document.querySelector("#character-count").textContent =
+    `${prompt.value.length} / 160`;
+}
+function setPrompt(value, focus = true) {
+  prompt.value = value;
+  prompt.setCustomValidity("");
+  updateCount();
+  if (focus) prompt.focus();
+}
+const linkedPrompt = new URLSearchParams(window.location.search).get("prompt");
+if (linkedPrompt !== null) {
+  const notice = document.querySelector("#link-notice");
+  notice.hidden = false;
+  if (validPrompt(linkedPrompt)) {
+    setPrompt(linkedPrompt, false);
+    notice.textContent =
+      "Example loaded from your link. Select Generate answer when you are ready.";
+  } else {
+    notice.textContent =
+      "The linked question was not loaded. Examples must use 1–160 ASCII characters.";
+  }
+}
+updateCount();
 temperature.addEventListener("input", () => {
   document.querySelector("#temp-value").value = Number(
     temperature.value,
   ).toFixed(1);
 });
-prompt.addEventListener("input", () => prompt.setCustomValidity(""));
+prompt.addEventListener("input", () => {
+  prompt.setCustomValidity("");
+  updateCount();
+});
 document.querySelectorAll("[data-prompt]").forEach((item) => {
-  item.addEventListener("click", () => {
-    prompt.value = item.dataset.prompt;
-    prompt.setCustomValidity("");
-    prompt.focus();
-  });
+  item.addEventListener("click", () => setPrompt(item.dataset.prompt));
+});
+cancelButton.addEventListener("click", () => currentController?.abort("user"));
+copyButton.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(lastAnswer);
+    status.textContent = "Output copied";
+  } catch {
+    status.textContent = "Copy unavailable — select the output text to copy it";
+  }
+});
+function renderRuns() {
+  const list = document.querySelector("#runs");
+  list.replaceChildren();
+  for (const run of recentRuns) {
+    const item = document.createElement("li");
+    const title = document.createElement("strong");
+    title.textContent = run.question;
+    const result = document.createElement("p");
+    result.textContent =
+      run.answer || "(The model ended its answer immediately.)";
+    const meta = document.createElement("span");
+    meta.textContent = `Temperature ${run.temperature.toFixed(1)} · ${(run.elapsedMs / 1000).toFixed(2)} seconds · seed ${run.seed} · limit ${run.maxNewTokens}`;
+    item.append(title, result, meta);
+    list.append(item);
+  }
+  document.querySelector("#recent-runs").hidden = recentRuns.length === 0;
+}
+document.querySelector("#clear-runs").addEventListener("click", () => {
+  recentRuns.length = 0;
+  renderRuns();
 });
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   if (button.disabled) return;
   const question = prompt.value.trim();
-  if (
-    !question ||
-    prompt.value.length > 160 ||
-    !/^[\x20-\x7e\n\t]+$/.test(prompt.value)
-  ) {
+  const selectedTemperature = Number(temperature.value);
+  const selectedSeed = Number(document.querySelector("#seed").value);
+  const selectedLimit = Number(document.querySelector("#max-new-tokens").value);
+  if (!validPrompt(prompt.value)) {
     prompt.setCustomValidity("Enter a question using 1–160 ASCII characters.");
     prompt.reportValidity();
     return;
   }
+  if (
+    !Number.isFinite(selectedTemperature) ||
+    selectedTemperature < 0 ||
+    selectedTemperature > 1
+  ) {
+    status.textContent = "Choose a temperature from 0 to 1.";
+    return;
+  }
+  if (
+    !document.querySelector("#seed").value.trim() ||
+    !Number.isInteger(selectedSeed) ||
+    selectedSeed < 0 ||
+    selectedSeed > 2147483647 ||
+    !Number.isInteger(selectedLimit) ||
+    selectedLimit < 16 ||
+    selectedLimit > 96
+  ) {
+    status.textContent =
+      "Use a whole-number seed from 0 to 2147483647 and an output limit from 16 to 96.";
+    return;
+  }
   button.disabled = true;
+  copyButton.disabled = true;
+  cancelButton.hidden = false;
   responsePanel.setAttribute("aria-busy", "true");
   status.textContent = "Generating…";
-  answer.textContent = "Thinking one character at a time…";
-  timing.textContent = "";
-  copyAnswer.disabled = true;
+  answer.textContent = "Predicting one character at a time…";
+  timing.textContent =
+    "The first request may take longer while the model starts.";
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60000);
+  currentController = controller;
+  const timeout = setTimeout(() => controller.abort("timeout"), 60000);
   try {
     const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         prompt: question,
-        temperature: Number(temperature.value),
+        temperature: selectedTemperature,
+        seed: selectedSeed,
+        maxNewTokens: selectedLimit,
       }),
       signal: controller.signal,
     });
-    // Platform errors may be HTML or plain text rather than our API's JSON.
     const result = await response.json().catch(() => null);
     if (!response.ok) {
       throw new Error(
@@ -65,79 +152,131 @@ form.addEventListener("submit", async (event) => {
     if (
       !result ||
       typeof result.answer !== "string" ||
-      !Number.isFinite(result.elapsedMs)
+      !Number.isFinite(result.elapsedMs) ||
+      result.elapsedMs < 0 ||
+      result.seed !== selectedSeed ||
+      result.maxNewTokens !== selectedLimit ||
+      result.temperature !== selectedTemperature
     ) {
       throw new Error(
         "The model returned an incomplete response. Please try again.",
       );
     }
+    lastAnswer = result.answer;
     answer.textContent =
       result.answer || "(The model ended its answer immediately.)";
-    status.textContent = "Complete";
-    copyAnswer.disabled = false;
-    timing.textContent = `${(result.elapsedMs / 1000).toFixed(2)} seconds · 2,000,000 parameters · seed 2026`;
+    status.textContent = "Experiment complete";
+    timing.textContent = `${(result.elapsedMs / 1000).toFixed(2)} seconds · temperature ${selectedTemperature.toFixed(1)} · seed ${result.seed} · limit ${result.maxNewTokens}`;
+    copyButton.disabled = result.answer.length === 0;
+    recentRuns.unshift({
+      question,
+      answer: result.answer,
+      temperature: result.temperature,
+      seed: result.seed,
+      maxNewTokens: result.maxNewTokens,
+      elapsedMs: result.elapsedMs,
+    });
+    recentRuns.length = Math.min(recentRuns.length, 3);
+    renderRuns();
   } catch (error) {
-    status.textContent = "Try again";
-    answer.textContent =
-      error.name === "AbortError"
-        ? "This answer took too long. Please try a shorter question."
-        : error instanceof TypeError
-          ? "Could not connect to the model. Check your connection and try again."
-          : error.message;
+    status.textContent =
+      controller.signal.reason === "user" ? "Request cancelled" : "Try again";
+    answer.textContent = controller.signal.aborted
+      ? controller.signal.reason === "user"
+        ? "Request cancelled. Your recent experiments are still below."
+        : "This answer took too long. Please try a shorter question."
+      : error instanceof TypeError
+        ? "Could not connect to the model. Check your connection and try again."
+        : error.message;
+    timing.textContent = "No new result was added to your experiments.";
   } finally {
     clearTimeout(timeout);
+    if (currentController === controller) currentController = null;
     responsePanel.setAttribute("aria-busy", "false");
     button.disabled = false;
+    cancelButton.hidden = true;
   }
 });
 
-fetch("/results/evaluation.json")
-  .then((response) => {
-    if (!response.ok) throw new Error("Report unavailable");
-    return response.json();
-  })
-  .then((result) => {
+async function loadReport(path) {
+  const response = await fetch(path);
+  if (!response.ok) throw new Error("Report unavailable");
+  return response.json();
+}
+function reportCount(result) {
+  if (
+    !Number.isInteger(result.exactMatches) ||
+    !Number.isInteger(result.total) ||
+    result.total < 1 ||
+    result.exactMatches < 0 ||
+    result.exactMatches > result.total
+  )
+    throw new Error("Invalid report");
+  return `${result.exactMatches} / ${result.total}`;
+}
+Promise.allSettled([
+  loadReport("/results/evaluation.json").then((result) => {
+    document.querySelector("#accuracy").textContent = reportCount(result);
+    document.querySelector("#reserved-bar").style.width =
+      `${(100 * result.exactMatches) / result.total}%`;
+  }),
+  loadReport("/results/canonical-evaluation.json").then((result) => {
+    document.querySelector("#canonical-accuracy").textContent =
+      reportCount(result);
+    document.querySelector("#canonical-bar").style.width =
+      `${(100 * result.exactMatches) / result.total}%`;
+  }),
+  loadReport("/results/refinement-report.json").then((result) => {
     if (
-      !Number.isInteger(result.exactMatches) ||
-      !Number.isInteger(result.total) ||
-      result.total < 1 ||
-      result.exactMatches < 0 ||
-      result.exactMatches > result.total
-    ) {
-      throw new Error("Invalid report");
-    }
-    document.querySelector("#accuracy").textContent =
-      `${result.exactMatches} / ${result.total}`;
-  })
-  .catch(() => {
-    document.querySelector("#accuracy").textContent = "See report";
-  });
+      !Number.isFinite(result.bestValidationLoss) ||
+      result.bestValidationLoss < 0
+    )
+      throw new Error("Invalid loss");
+    document.querySelector("#validation-loss").textContent =
+      `${result.bestValidationLoss.toFixed(4)} nats`;
+  }),
+]).then((results) => {
+  document.querySelector("#report-state").textContent = results.every(
+    (result) => result.status === "fulfilled",
+  )
+    ? "Verified release reports loaded"
+    : "Showing released measurements; some live reports could not load";
+});
+
+const visual = document.querySelector(".model-visual");
+const modelReducedMotion = window.matchMedia(
+  "(prefers-reduced-motion: reduce)",
+);
+let frame = null;
+function updateVisual() {
+  frame = null;
+  const offset = (modelReducedMotion.matches || document.documentElement.dataset.motion === "off") ? 0 : Math.min(window.scrollY, 700);
+  visual.style.setProperty("--scroll-tilt", `${offset / 100}deg`);
+  visual.style.setProperty("--scroll-lift", `${-offset / 22}px`);
+}
+window.addEventListener(
+  "scroll",
+  () => {
+    if (!frame && !modelReducedMotion.matches)
+      frame = requestAnimationFrame(updateVisual);
+  },
+  { passive: true },
+);
+modelReducedMotion.addEventListener("change", updateVisual);
+window.addEventListener("pebble-motion-change", updateVisual);
+updateVisual();
 
 // Load a published example into the real playground without silently generating.
 document.querySelectorAll("[data-load-demo]").forEach((item) => {
   item.addEventListener("click", () => {
-    document
-      .querySelector("#playground")
-      .scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "auto"
-          : "smooth",
-      });
+    setPrompt(item.dataset.prompt, false);
+    document.querySelector("#playground").scrollIntoView({
+      behavior: (window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.motion === "off")
+        ? "auto"
+        : "smooth",
+    });
     prompt.focus({ preventScroll: true });
   });
-});
-
-const copyAnswer = document.querySelector("#copy-answer");
-copyAnswer.addEventListener("click", async () => {
-  try {
-    await navigator.clipboard.writeText(answer.textContent);
-    copyAnswer.textContent = "Copied";
-  } catch {
-    copyAnswer.textContent = "Select text to copy";
-  }
-  setTimeout(() => {
-    copyAnswer.textContent = "Copy answer";
-  }, 2500);
 });
 
 const topicSelect = document.querySelector("#example-topic");
@@ -192,10 +331,10 @@ fetch("/results/showcase.json")
       target.hidden = example.reserved.exact;
       target.querySelector("span").textContent = example.reserved.expected;
       exampleNote.textContent = `${example.topic} · ${examples.length} topics · recorded greedy outputs`;
-      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      if (!(window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.motion === "off")) {
         document
           .querySelector(".example-grid")
-          .animate([{ opacity: 0.6 }, { opacity: 1 }], { duration: 220 });
+          .animate?.([{ opacity: 0.6 }, { opacity: 1 }], { duration: 220 });
       }
     }
     topicSelect.addEventListener("change", showTopic);
@@ -236,6 +375,7 @@ const stages = [
 document.querySelectorAll("[data-stage]").forEach((button) => {
   button.addEventListener("click", () => {
     const stage = stages[Number(button.dataset.stage)];
+    if (!stage) return;
     document.querySelectorAll("[data-stage]").forEach((item) => {
       const active = item === button;
       item.classList.toggle("active", active);
@@ -252,8 +392,8 @@ document.querySelectorAll("[data-stage]").forEach((button) => {
     const link = document.querySelector("#stage-source");
     link.href = `https://github.com/YashAnand69/pebble-llm/blob/main/${stage.source}`;
     link.textContent = stage.link;
-    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      document.querySelector(".workflow-detail").animate(
+    if (!(window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.dataset.motion === "off")) {
+      document.querySelector(".workflow-detail").animate?.(
         [
           { opacity: 0.65, transform: "translateY(4px)" },
           { opacity: 1, transform: "translateY(0)" },
@@ -265,13 +405,14 @@ document.querySelectorAll("[data-stage]").forEach((button) => {
 });
 
 const codeExamples = {
-  curl: `curl https://pebble-llm.vercel.app/api/generate \\\n  -H 'Content-Type: application/json' \\\n  --data '{"prompt":"What is Pebble?","temperature":0}'`,
-  javascript: `const response = await fetch(\n  'https://pebble-llm.vercel.app/api/generate', {\n    method: 'POST',\n    headers: {'Content-Type': 'application/json'},\n    body: JSON.stringify({\n      prompt: 'What is Pebble?', temperature: 0\n    })\n  }\n);\nconst result = await response.json();\nif (!response.ok) throw new Error(result.error);\nconsole.log(result.answer);`,
+  curl: `curl https://pebble-llm.vercel.app/api/generate \\\n  -H 'Content-Type: application/json' \\\n  --data '{"prompt":"What is Pebble?","temperature":0,"seed":2026,"maxNewTokens":96}'`,
+  javascript: `const response = await fetch(\n  'https://pebble-llm.vercel.app/api/generate', {\n    method: 'POST',\n    headers: {'Content-Type': 'application/json'},\n    body: JSON.stringify({\n      prompt: 'What is Pebble?', temperature: 0,\n      seed: 2026, maxNewTokens: 96\n    })\n  }\n);\nconst result = await response.json();\nif (!response.ok) throw new Error(result.error);\nconsole.log(result.answer);`,
 };
 document.querySelectorAll("[data-code-tab]").forEach((button) => {
   button.addEventListener("click", () => {
-    document.querySelector("#api-example").textContent =
-      codeExamples[button.dataset.codeTab];
+    const code = codeExamples[button.dataset.codeTab];
+    if (typeof code !== "string") return;
+    document.querySelector("#api-example").textContent = code;
     document
       .querySelectorAll("[data-code-tab]")
       .forEach((item) =>

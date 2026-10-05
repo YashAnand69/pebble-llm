@@ -4,14 +4,16 @@ PebbleLM is an exactly 2,000,000-parameter, character-level transformer for a 40
 
 ## 1. Try the playground
 
-Open https://pebble-llm.vercel.app/#playground. Start with `What is Pebble?`, `What is attention?`, `What is tensors?` or `What is functions?`.
+Open https://pebble-llm.vercel.app/#playground. Start with `What is Pebble?`, `What is attention?`, `Explain tensors.` or `Explain functions.`.
 
 1. Enter a short question using 1–160 ASCII characters.
 2. Leave temperature at 0 for greedy, deterministic generation with seed 2026.
 3. Select **Generate answer** and allow a few seconds for CPU inference.
-4. Compare the output with the topic examples and published evaluations. **Copy answer** copies a successful result.
+4. Compare the output with the topic examples and published evaluations. **Copy output** copies a successful result.
 
-The playground generates up to 96 character tokens, ending sooner if the model chooses EOS. Higher temperature, up to 1, adds randomness; it does not make answers more accurate. The demo uses top-k 20 and the released checkpoint. It runs inference on the server, not on your device.
+The playground lets you choose an output limit from 16 to 96 character tokens, ending sooner if the model chooses EOS. Higher temperature, up to 1, adds randomness; it does not make answers more accurate. The demo uses top-k 20 and the released checkpoint. It runs inference on the server, not on your device.
+
+Open **Reproducible sampling settings** to change the seed and output limit. The same prompt, temperature, seed and limit reproduce a sample. **Cancel request** cancels the browser request; the server may finish work already started. The last three successful experiments are held only in page memory.
 
 The example explorer shows recorded generations rather than new inference. **Try this question live** fills the playground; select **Generate answer** to run it. Compare `What is attention?` with `How does attention work?` to see how wording affects the model.
 
@@ -53,7 +55,7 @@ The CLI supports `--checkpoint`, `--prompt`, `--temperature`, `--top-k`, `--max-
 ```sh
 curl https://pebble-llm.vercel.app/api/generate \
   -H 'Content-Type: application/json' \
-  --data '{"prompt":"What is Pebble?","temperature":0}'
+  --data '{"prompt":"What is Pebble?","temperature":0,"seed":2026,"maxNewTokens":96}'
 ```
 
 The successful JSON response has `answer` (string), `parameters` (2000000) and `elapsedMs` (measured model-run time). Timing varies by prompt and server conditions; it is not an advertised latency guarantee. Responses use `Cache-Control: no-store`.
@@ -64,14 +66,14 @@ Node 24 / server-side JavaScript:
 const response = await fetch("https://pebble-llm.vercel.app/api/generate", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ prompt: "What is Pebble?", temperature: 0 }),
+  body: JSON.stringify({ prompt: "What is Pebble?", temperature: 0, seed: 2026, maxNewTokens: 96 }),
 });
 const result = await response.json();
 if (!response.ok) throw new Error(result.error);
 console.log(result.answer);
 ```
 
-The endpoint accepts a JSON object with a required ASCII `prompt` (1–160 characters) and optional numeric `temperature` (0–1, default 0). Its output limit is fixed at 96 character tokens. Use POST; other methods return 405 with `Allow: POST`. Invalid inputs return 400; inference failures return a generic 500 error. Platform timeouts can return non-JSON responses, so real integrations should handle them too.
+The endpoint accepts a JSON object with a required ASCII `prompt` (1–160 characters) and optional numeric `temperature` (0–1, default 0). Optional integer `seed` is 0–2147483647 (default 2026); optional integer `maxNewTokens` is 16–96 (default 96). The response echoes the actual seed, temperature and limit. Use POST; other methods return 405 with `Allow: POST`. Invalid inputs return 400; inference failures return a generic 500 error. Platform timeouts can return non-JSON responses, so real integrations should handle them too.
 
 Use the full URL from server-side code. Browser code on the deployed site's origin can use `/api/generate`; cross-origin browser requests are not supported by this API's CORS policy. This public endpoint is an educational demo, not a guaranteed high-volume service. For an independent application, run your own copy and set appropriate traffic controls.
 

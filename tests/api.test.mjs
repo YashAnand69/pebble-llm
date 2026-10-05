@@ -22,3 +22,11 @@ test('released weights generate deterministically without retaining tensors',asy
  const second=response();await handler({method:'POST',body:{prompt:'What is Pebble?',temperature:0}},second);
  assert.equal(second.code,200);assert.equal(second.body.answer,first.body.answer);assert.equal(tf.memory().numTensors,retained);
 });
+
+test('web generation limits and seed cannot bypass the bounded runtime',async()=>{
+ for(const options of [{maxNewTokens:0},{maxNewTokens:97},{maxNewTokens:32.5},{maxNewTokens:'96'},{seed:-1},{seed:2147483648},{seed:'2026'},{seed:NaN}]) {
+  const res=response();await handler({method:'POST',body:{prompt:'What is Pebble?',...options}},res);assert.equal(res.code,400);
+ }
+ const res=response();await handler({method:'POST',body:{prompt:'What is Pebble?',maxNewTokens:16,seed:17,temperature:0}},res);
+ assert.equal(res.code,200);assert.ok(res.body.answer.length<=16);assert.equal(res.body.maxNewTokens,16);assert.equal(res.body.seed,17);
+});

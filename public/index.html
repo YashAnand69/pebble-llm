@@ -3,96 +3,123 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="theme-color" content="#162b24" />
+    <meta name="theme-color" content="#11281f" />
     <meta
       name="description"
-      content="PebbleLM is an open, exactly 2M-parameter transformer built and trained in Pebble. Try real inference, explore published outputs, and learn to run and retrain it."
+      content="Explore a real two-million-parameter model trained in Pebble. Generate text, compare familiar and reworded prompts, and follow the open training evidence."
     />
-    <title>PebbleLM — a language model you can understand</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Pebble Model — a small model you can understand</title>
+    <link rel="stylesheet" href="/fonts.css" />
     <link rel="stylesheet" href="/style.css" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <script src="/site.js" defer></script>
     <script src="/app.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header>
-      <a class="brand" href="/" aria-label="PebbleLM home"
-        >pebble<span>LM</span><i>2M</i></a
-      >
-      <nav aria-label="Main">
-        <a href="#model">The model</a><a href="#playground">Playground</a
-        ><a href="/guide.html">Usage guide</a
-        ><a href="https://github.com/YashAnand69/pebble-llm">GitHub ↗</a>
-      </nav>
+      <div class="header-inner">
+        <a
+          class="brand"
+          href="https://pebble-peach-kappa.vercel.app/?view=ecosystem"
+          aria-label="Pebble ecosystem home"
+          ><span class="brand-mark" aria-hidden="true">p</span>pebble<span
+            class="brand-product"
+            >/ model</span
+          ></a
+        >
+        <nav aria-label="Pebble ecosystem">
+          <a href="https://pebble-peach-kappa.vercel.app/?view=studio"
+            >Language</a
+          ><a href="https://pebble-llm.vercel.app/" aria-current="page">Model</a
+          ><a href="https://pebble-sentinel.vercel.app/">Sentinel</a>
+        </nav>
+        <a
+          class="source-link"
+          href="https://github.com/YashAnand69/pebble-llm"
+          target="_blank"
+          rel="noopener"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </div>
+      <div class="model-local-nav" aria-label="Model sections">
+        <a href="#playground">Playground</a
+        ><a href="#examples">Recorded outputs</a
+        ><a href="#architecture">Model tour</a
+        ><a href="/guide.html">Usage guide ↗</a>
+      </div>
+    <button class="motion-toggle" type="button" aria-pressed="false" aria-label="Turn off animation">Motion on</button>
     </header>
     <main id="main">
       <section class="hero">
-        <div class="hero-grid">
-          <div>
-            <p class="eyebrow">
-              <span class="dot"></span> 2M PARAMETERS · OPEN WEIGHTS · BUILT IN
-              PEBBLE
-            </p>
-            <h1>
-              A language model.<br /><em>Small enough<br />to understand.</em>
-            </h1>
-            <p class="intro">
-              Meet PebbleLM: a real character-level transformer you can run,
-              inspect and retrain. Two million learned weights. Forty topics.
-              Every step in Pebble.
-            </p>
-            <div class="hero-links">
-              <a class="button" href="#playground"
-                >Try real inference <span>↗</span></a
-              ><a class="text-link" href="/guide.html">Get started →</a>
-            </div>
-            <p class="fine hero-note">
-              An educational model with published results. No external AI API.
-            </p>
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="dot"></span> PEBBLE ECOSYSTEM / 02</p>
+          <h1>Learning, at<br />a human <em>scale.</em></h1>
+          <p class="intro">
+            A real transformer. Exactly two million parameters. Built and
+            trained in a language you can explore.
+          </p>
+          <p class="hero-context">
+            Meet PebbleLM: a small educational model that makes the journey from
+            code to learned behavior visible.
+          </p>
+          <div class="hero-links">
+            <a class="button" href="#playground"
+              >Open the playground <span aria-hidden="true">↘</span></a
+            ><a class="text-link" href="#results"
+              >See what it learned <span aria-hidden="true">↓</span></a
+            >
           </div>
-          <div
-            class="model-window"
-            aria-label="Model overview and published generation sample"
-          >
-            <div class="model-window-top">
-              <div class="panel-label">
-                <span>INSIDE PEBBLELM</span><span>4 DECODER BLOCKS</span>
-              </div>
-              <div class="token-path" aria-hidden="true">
-                <span>Characters</span><b>→</b><span>Attention</span><b>→</b
-                ><span>Next token</span>
-              </div>
-              <p class="mono">
-                Width 200 / 4 heads / 299 positions<br /><strong
-                  >2,000,000 trainable parameters</strong
-                >
-              </p>
-            </div>
-            <div class="model-window-output">
-              <p class="eyebrow">PUBLISHED GREEDY SAMPLE</p>
-              <p class="sample-question">Q: What is Pebble?</p>
-              <p class="sample-answer">
-                Pebble is a small programming language.
-              </p>
-              <p class="sample-foot">
-                Released float32 weights · WASM CPU inference
-              </p>
-            </div>
+          <div class="hero-note">
+            <span class="tiny-label">NO HIDDEN BIG MODEL</span>
+            <p>
+              Actual trained weights. No external AI API. Code, data and weights
+              are MIT.
+            </p>
           </div>
         </div>
-        <div class="stats">
-          <div><strong>2,000,000</strong><span>trainable parameters</span></div>
-          <div>
-            <strong>8 MB</strong><span>released float32 checkpoint</span>
+        <div class="model-visual" aria-hidden="true">
+          <div class="visual-orbit"></div>
+          <div class="visual-caption">
+            <span>PEBBLELM / DECODER</span
+            ><span class="live-light">2M PARAMETERS</span>
           </div>
-          <div>
-            <strong>40 topics</strong><span>Pebble, programming & ML</span>
+          <div class="layer-stack">
+            <div class="layer layer-one">
+              <span>01 / EMBEDDINGS</span>
+              <div class="tokens">
+                <i>P</i><i>e</i><i>b</i><i>b</i><i>l</i><i>e</i>
+              </div>
+            </div>
+            <div class="layer layer-two">
+              <span>02 / CAUSAL ATTENTION</span>
+              <div class="neuron-grid">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i
+                ><i></i><i></i><i></i>
+              </div>
+            </div>
+            <div class="layer layer-three">
+              <span>03 / FOUR DECODER BLOCKS</span>
+              <div class="signal-line"></div>
+              <div class="signal-line short"></div>
+            </div>
+            <div class="layer layer-four">
+              <span>04 / NEXT CHARACTER</span
+              ><b>small steps.<em> real learning.</em></b>
+            </div>
           </div>
-          <div><strong>MIT</strong><span>source, data & weights</span></div>
+          <div class="visual-bottom">
+            <span>101 tokens</span><span>299-character context</span>
+          </div>
         </div>
       </section>
-      <section id="model" class="reveal">
+      <div class="stats" aria-label="Model specifications">
+        <div><strong>2,000,000</strong><span>trainable parameters</span></div>
+        <div><strong>4 × 4</strong><span>layers × attention heads</span></div>
+        <div><strong>40</strong><span>authored training topics</span></div>
+        <div><strong>MIT</strong><span>source, data & weights</span></div>
+      </div>
+      <section id="model" class="reveal legacy-showcase">
         <div class="section-heading">
           <div>
             <p class="eyebrow">01 / MEET THE MODEL</p>
@@ -166,10 +193,178 @@
           </div>
         </div>
       </section>
-      <section id="examples" class="reveal">
+      <section id="playground" class="playground reveal">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">02 / OUTPUTS, NOT PROMISES</p>
+            <p class="eyebrow">02 / EXPERIMENT</p>
+            <h2>A question. A small experiment.</h2>
+          </div>
+          <span class="badge"
+            ><span class="dot"></span> Actual model inference</span
+          >
+        </div>
+        <p class="muted section-intro">
+          Start with a familiar topic, then change its wording. Watch what a
+          tiny model remembers—and where it struggles.
+        </p>
+        <div class="workbench">
+          <form id="question-form">
+            <div class="form-heading">
+              <label for="prompt">Your question</label
+              ><span id="character-count">15 / 160</span>
+            </div>
+            <textarea
+              id="prompt"
+              name="prompt"
+              maxlength="160"
+              rows="3"
+              aria-describedby="prompt-help link-notice"
+              required
+              placeholder="What is Pebble?"
+            >
+What is Pebble?</textarea
+            >
+            <p id="link-notice" class="link-notice" role="status" hidden></p>
+            <div class="starter-heading">
+              <span>CHOOSE AN EXPERIMENT</span
+              ><span>Sets the question only</span>
+            </div>
+            <div class="starter-groups">
+              <div>
+                <span class="starter-label">Learn Pebble</span>
+                <div class="suggestions">
+                  <button type="button" data-prompt="What is Pebble?">
+                    Pebble</button
+                  ><button type="button" data-prompt="Explain functions.">
+                    Functions</button
+                  ><button type="button" data-prompt="Explain modules.">
+                    Modules
+                  </button>
+                </div>
+              </div>
+              <div>
+                <span class="starter-label">Understand ML</span>
+                <div class="suggestions">
+                  <button type="button" data-prompt="What is attention?">
+                    Attention</button
+                  ><button type="button" data-prompt="Explain tensors.">
+                    Tensors</button
+                  ><button type="button" data-prompt="What is training?">
+                    Training
+                  </button>
+                </div>
+              </div>
+              <div>
+                <span class="starter-label">Try new wording</span>
+                <div class="suggestions">
+                  <button type="button" data-prompt="How does Pebble work?">
+                    Reword Pebble</button
+                  ><button type="button" data-prompt="How does attention work?">
+                    Reword attention
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="controls">
+              <label for="temperature"
+                >Temperature
+                <output id="temp-value" for="temperature">0.0</output
+                ><input
+                  id="temperature"
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value="0"
+                  aria-describedby="temperature-help" /></label
+              ><button id="generate" class="button" type="submit">
+                Generate answer <span aria-hidden="true">↗</span>
+              </button>
+            </div>
+            <details class="sampling-settings">
+              <summary>Reproducible sampling settings</summary>
+              <div class="sampling-grid">
+                <label for="max-new-tokens"
+                  >Output limit<select id="max-new-tokens">
+                    <option value="16">16 characters</option>
+                    <option value="32">32 characters</option>
+                    <option value="64">64 characters</option>
+                    <option value="96" selected>96 characters</option>
+                  </select></label
+                ><label for="seed"
+                  >Random seed<input
+                    id="seed"
+                    type="number"
+                    min="0"
+                    max="2147483647"
+                    step="1"
+                    value="2026"
+                    required
+                    aria-describedby="seed-help"
+                /></label>
+              </div>
+              <p id="seed-help" class="fine">
+                Same prompt, temperature, seed and output limit reproduce a
+                sample. Change the seed at temperature above zero to explore
+                variation.
+              </p>
+            </details>
+            <p id="temperature-help" class="fine">
+              0 is deterministic. Higher values sample more varied characters.
+              Seed and output limit are adjustable above.
+            </p>
+            <p id="prompt-help" class="fine">
+              Use 1–160 ASCII characters. Answers stop after at most 96
+              generated characters.
+            </p>
+          </form>
+          <div class="response" aria-busy="false">
+            <div class="response-top">
+              <span>PEBBLELM / OUTPUT</span
+              ><span id="status" role="status">Ready to experiment</span>
+            </div>
+            <p id="answer" aria-live="polite">
+              A small question can teach you a lot about a small model.
+            </p>
+            <p id="timing" class="fine">
+              Your output appears here after you generate.
+            </p>
+            <div class="output-tools">
+              <button id="copy-answer" type="button" disabled>
+                Copy output <span aria-hidden="true">↗</span></button
+              ><button id="cancel" type="button" hidden>Cancel request</button>
+            </div>
+            <div class="response-bottom">
+              <span class="dot"></span> Generated from the released trained
+              weights
+            </div>
+          </div>
+        </div>
+        <div class="experiment-note">
+          <span aria-hidden="true">↳</span>
+          <p>
+            <strong>An educational model, not a general assistant.</strong> It
+            learns a narrow set of programming and ML topics. It can repeat an
+            answer, mix learned phrases or produce incorrect text. Changing
+            wording is a test of generalization, not a request for new
+            knowledge.
+          </p>
+        </div>
+        <div class="recent-runs" id="recent-runs" hidden>
+          <div class="recent-heading">
+            <h3>Your recent experiments</h3>
+            <button id="clear-runs" type="button">Clear</button>
+          </div>
+          <ol id="runs"></ol>
+          <p class="fine">
+            Last three results, held only in this page’s memory.
+          </p>
+        </div>
+      </section>
+      <section id="examples" class="reveal legacy-showcase">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">03 / RECORDED OUTPUTS</p>
             <h2>Same topic.<br />Different wording.</h2>
           </div>
           <p class="section-description">
@@ -254,243 +449,197 @@
           </p></noscript
         >
       </section>
-      <section id="playground" class="playground reveal">
+      <section id="results" class="results reveal">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">03 / RUN THE MODEL</p>
-            <h2>Small question.<br />Real inference.</h2>
+            <p class="eyebrow">04 / EVIDENCE</p>
+            <h2>Small model. Open notebook.</h2>
           </div>
-          <span class="badge"
-            ><span class="dot"></span> Released checkpoint</span
+          <a
+            class="text-link"
+            href="https://github.com/YashAnand69/pebble-llm/blob/main/MODEL_CARD.md"
+            >Read the model card <span aria-hidden="true">↗</span></a
           >
         </div>
-        <p class="muted">
-          Start with “What is Pebble?” or choose a familiar topic. Change the
-          temperature to explore sampling. Your answer is generated on the
-          server from the model's own weights.
-        </p>
-        <div class="workbench">
-          <form id="question-form">
-            <label for="prompt">Your question</label
-            ><textarea
-              id="prompt"
-              name="prompt"
-              maxlength="160"
-              rows="3"
-              aria-describedby="prompt-help"
-              required
-              placeholder="What is Pebble?"
+        <div class="evidence-grid">
+          <article class="score-card">
+            <span class="tiny-label">FAMILIAR WORDING</span
+            ><strong id="canonical-accuracy">38 / 40</strong>
+            <p>Exact matches on the first training phrasing for each topic.</p>
+            <div class="score-track" aria-hidden="true">
+              <span id="canonical-bar" style="width: 95%"></span>
+            </div>
+            <a href="/results/canonical-evaluation.json"
+              >Read every familiar-prompt output ↗</a
             >
-What is Pebble?</textarea>
-            <div class="suggestions" aria-label="Suggested questions">
-              <button type="button" data-prompt="What is attention?">
-                Attention</button
-              ><button type="button" data-prompt="What is tensors?">
-                Tensors</button
-              ><button type="button" data-prompt="What is training?">
-                Training</button
-              ><button type="button" data-prompt="What is functions?">
-                Functions
-              </button>
-            </div>
-            <div class="controls">
-              <label for="temperature"
-                >Temperature <output id="temp-value">0.0</output
-                ><input
-                  id="temperature"
-                  type="range"
-                  min="0"
-                  max="1"
-                  step="0.1"
-                  value="0" /></label
-              ><button id="generate" class="button" type="submit">
-                Generate answer <span>↗</span>
-              </button>
-            </div>
-            <p id="prompt-help" class="fine">
-              1–160 ASCII characters · 0 = greedy · up to 96 generated
-              characters
+          </article>
+          <article class="score-card reserved">
+            <span class="tiny-label">RESERVED WORDING</span
+            ><strong id="accuracy">4 / 40</strong>
+            <p>
+              Exact matches when those same topics are asked with held-out
+              wording.
             </p>
-            <p class="fine">
-              Expect a few seconds per answer. Higher temperature increases
-              randomness, not accuracy.
+            <div class="score-track" aria-hidden="true">
+              <span id="reserved-bar" style="width: 10%"></span>
+            </div>
+            <a href="/results/evaluation.json"
+              >Read every reserved-prompt output ↗</a
+            >
+          </article>
+          <article class="evidence-context">
+            <span class="tiny-label">WHAT THIS TELLS US</span>
+            <h3>Remembering is easier than generalizing.</h3>
+            <p>
+              Both sets use the same 40 topics and target answers. This measures
+              sensitivity to phrasing. It does not measure new knowledge or
+              general reasoning.
             </p>
-          </form>
-          <div class="response" aria-busy="false">
-            <div class="response-top">
-              <span>PEBBLELM / OUTPUT</span
-              ><span id="status" role="status">Ready</span>
-            </div>
-            <p id="answer" aria-live="polite">Your answer will appear here.</p>
-            <p id="timing" class="fine"></p>
-            <div class="response-bottom">
-              <span>Trained weights. No external AI API.</span
-              ><button
-                class="copy-answer"
-                id="copy-answer"
-                type="button"
-                disabled
-              >
-                Copy answer
-              </button>
-            </div>
+            <span class="report-state" id="report-state" role="status"
+              >Released checkpoint measurements</span
+            >
+          </article>
+        </div>
+        <div class="training-summary">
+          <div>
+            <span>PRETRAINING</span><strong>2,000 updates</strong>
+            <p>Packed 299-position sequences</p>
+          </div>
+          <div>
+            <span>REFINEMENT</span><strong>1,000 updates</strong>
+            <p>Individual question/answer prompts</p>
+          </div>
+          <div>
+            <span>SELECTED VALIDATION LOSS</span
+            ><strong id="validation-loss">0.0551 nats</strong>
+            <p>Validation selects the checkpoint</p>
           </div>
         </div>
-        <p class="notice">
-          This is an educational model, not a general assistant. It can repeat
-          learned answers, invent text or get things wrong.
-          <a href="/guide.html#playground">Read the prompting guide →</a>
-        </p>
-        <noscript
-          ><p>
-            The interactive demo needs JavaScript. You can also
-            <a href="/guide.html#local">run the model locally</a>.
-          </p></noscript
-        >
+        <figure class="chart">
+          <img
+            src="/results/training-curve.svg"
+            alt="Actual training and validation loss during 2,000 pretraining steps and 1,000 refinement steps"
+            loading="lazy"
+          />
+          <figcaption>
+            Actual recorded losses. The best validation checkpoint is selected,
+            rather than the final update.
+          </figcaption>
+        </figure>
       </section>
-      <section id="architecture" class="reveal">
+      <section id="architecture" class="architecture reveal">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">04 / INSIDE THE TRANSFORMER</p>
-            <h2>Follow one prediction.</h2>
+            <p class="eyebrow">05 / UNDERSTAND</p>
+            <h2>From a character to a prediction.</h2>
           </div>
-          <p class="section-description">
-            The network and sampling are Pebble programs. TensorFlow.js and WASM
-            provide the numerical kernels. Explore each stage below.
-          </p>
+          <span class="badge">No mystery API</span>
         </div>
-        <div class="workflow">
-          <div class="workflow-steps" aria-label="Prediction stages">
-            <button
-              class="workflow-step active"
-              type="button"
-              data-stage="0"
-              aria-pressed="true"
-            >
-              <span>01</span> Encode characters</button
-            ><span class="workflow-arrow" aria-hidden="true">→</span
-            ><button
-              class="workflow-step"
-              type="button"
-              data-stage="1"
-              aria-pressed="false"
-            >
-              <span>02</span> Attend to context</button
-            ><span class="workflow-arrow" aria-hidden="true">→</span
-            ><button
-              class="workflow-step"
-              type="button"
-              data-stage="2"
-              aria-pressed="false"
-            >
-              <span>03</span> Predict & repeat
-            </button>
+        <div class="legacy-showcase">
+          <div class="workflow">
+            <div class="workflow-steps" aria-label="Prediction stages">
+              <button
+                class="workflow-step active"
+                type="button"
+                data-stage="0"
+                aria-pressed="true"
+              >
+                <span>01</span> Encode characters</button
+              ><span class="workflow-arrow" aria-hidden="true">→</span
+              ><button
+                class="workflow-step"
+                type="button"
+                data-stage="1"
+                aria-pressed="false"
+              >
+                <span>02</span> Attend to context</button
+              ><span class="workflow-arrow" aria-hidden="true">→</span
+              ><button
+                class="workflow-step"
+                type="button"
+                data-stage="2"
+                aria-pressed="false"
+              >
+                <span>03</span> Predict & repeat
+              </button>
+            </div>
+            <div class="workflow-detail" aria-live="polite">
+              <p class="eyebrow" id="stage-label">01 / ENCODE CHARACTERS</p>
+              <h3 id="stage-title">A fixed vocabulary. Learned vectors.</h3>
+              <p id="stage-copy">
+                The tokenizer maps printable ASCII, newline, tab and four
+                special tokens into 101 IDs. Each ID gets a learned
+                200-dimensional vector, plus a learned position embedding.
+              </p>
+              <code id="stage-code"
+                >101 tokens × 200 dimensions + 299 positions × 200
+                dimensions</code
+              ><a
+                id="stage-source"
+                class="text-link"
+                href="https://github.com/YashAnand69/pebble-llm/blob/main/tokenizer.pebble"
+                >Inspect the tokenizer ↗</a
+              >
+            </div>
           </div>
-          <div class="workflow-detail" aria-live="polite">
-            <p class="eyebrow" id="stage-label">01 / ENCODE CHARACTERS</p>
-            <h3 id="stage-title">A fixed vocabulary. Learned vectors.</h3>
-            <p id="stage-copy">
-              The tokenizer maps printable ASCII, newline, tab and four special
-              tokens into 101 IDs. Each ID gets a learned 200-dimensional
-              vector, plus a learned position embedding.
+        </div>
+        <div class="architecture-flow">
+          <article>
+            <span>01</span>
+            <h3>Read the characters</h3>
+            <p>
+              A fixed vocabulary turns your question into character tokens. The
+              model sees at most 299 characters of context.
             </p>
-            <code id="stage-code"
-              >101 tokens × 200 dimensions + 299 positions × 200
-              dimensions</code
-            ><a
-              id="stage-source"
-              class="text-link"
-              href="https://github.com/YashAnand69/pebble-llm/blob/main/tokenizer.pebble"
-              >Inspect the tokenizer ↗</a
-            >
-          </div>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Connect the context</h3>
+            <p>
+              Four decoder blocks use causal attention. Each position learns
+              from the characters that came before it.
+            </p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Predict one more</h3>
+            <p>
+              The tied output projection assigns probabilities to the next
+              character. Temperature controls sampling.
+            </p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>Repeat and inspect</h3>
+            <p>
+              Generation continues until the end token or the limit. Compare the
+              output with the published evaluation.
+            </p>
+          </article>
         </div>
-        <div class="architecture architecture-detail">
+        <div class="source-panel">
           <div>
-            <h3>Exactly two million.<br />No extra padding weights.</h3>
-            <p class="muted">
-              Four decoder blocks. Four attention heads. Width 200. A
-              299-position learned context. Input and output share the same
-              token embedding. Eighteen unique trainable tensors, with no bias
-              or dropout parameters.
+            <span class="tiny-label">DEFINED AND TRAINED IN PEBBLE</span>
+            <h3>The whole learning loop is open.</h3>
+            <p>
+              The network, tokenizer, training loop and sampling are Pebble
+              programs. TensorFlow.js/WASM provides numerical kernels and
+              automatic differentiation.
             </p>
             <a
               class="text-link"
               href="https://github.com/YashAnand69/pebble-llm/blob/main/model.pebble"
-              >Read the complete network ↗</a
+              >Read the actual network <span aria-hidden="true">↗</span></a
             >
           </div>
-          <pre><code><span>// The complete parameter equation</span>
+          <pre><code><span>// Exact trainable parameter count</span>
 (101 + 299) × 200
 + 4 × (4 × 200² + 2 × 200 × 800)
 
-= <b>2,000,000</b>
-
-<span>Pre-LayerNorm · causal attention
-Tied embeddings · float32 weights</span></code></pre>
+= <b>2,000,000</b></code></pre>
         </div>
       </section>
-      <section id="results" class="results reveal">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">05 / MEASURED, NOT ASSUMED</p>
-            <h2>Small footprint.<br />Visible trade-offs.</h2>
-          </div>
-          <a
-            href="https://github.com/YashAnand69/pebble-llm/blob/main/MODEL_CARD.md"
-            >Read the model card ↗</a
-          >
-        </div>
-        <div class="metric-grid">
-          <article>
-            <span>SEEN TRAINING WORDING</span><strong>38 / 40</strong>
-            <p>exact greedy answers on familiar phrasings</p>
-          </article>
-          <article>
-            <span>RESERVED TEST WORDING</span
-            ><strong id="accuracy">4 / 40</strong>
-            <p>exact greedy answers on held-out phrasings of shared topics</p>
-          </article>
-          <article>
-            <span>RESERVED PERPLEXITY</span><strong>1.266</strong>
-            <p>teacher-forced evaluation; not a measure of answer accuracy</p>
-          </article>
-        </div>
-        <div class="chart">
-          <img
-            src="/results/training-curve.svg"
-            alt="Measured training and validation loss during 2,000 pretraining and 1,000 refinement updates"
-            loading="lazy"
-          />
-        </div>
-        <div class="result-notes">
-          <div>
-            <h3>Runs on your CPU</h3>
-            <p>
-              WASM kernels and an approximately 8 MB checkpoint make local
-              experiments accessible. Runtime memory includes activations and
-              the interpreter; 8 MB is the weight file size.
-            </p>
-          </div>
-          <div>
-            <h3>Every result is inspectable</h3>
-            <p>
-              Two thousand pretraining updates and one thousand refinement
-              updates. The checkpoint was selected by validation loss. All forty
-              reserved generations, including failures, are published.
-            </p>
-          </div>
-        </div>
-        <p class="notice">
-          No broad benchmark, speed superiority or general reasoning claim is
-          made. Evaluation topics and target answers overlap with training; new
-          wording remains a challenge.
-        </p>
-        <a class="text-link" href="/results/evaluation.json"
-          >Open every reserved test result ↗</a
-        >
-      </section>
-      <section id="developers" class="reveal">
+      <section id="developers" class="reveal legacy-showcase">
         <div class="section-heading">
           <div>
             <p class="eyebrow">06 / MADE TO BE OPENED</p>
@@ -512,8 +661,8 @@ Tied embeddings · float32 weights</span></code></pre>
               ><span>02 / CALL THE ENDPOINT</span>
               <h3>A small JSON interface.</h3>
               <p>
-                POST a question and temperature; receive the answer and elapsed
-                time.
+                POST a question with bounded sampling options; receive the
+                answer and elapsed time.
               </p>
               <b aria-hidden="true">↗</b></a
             ><a href="/guide.html#training"
@@ -545,7 +694,7 @@ Tied embeddings · float32 weights</span></code></pre>
             </div>
             <pre><code id="api-example">curl https://pebble-llm.vercel.app/api/generate \
   -H 'Content-Type: application/json' \
-  --data '{"prompt":"What is Pebble?","temperature":0}'</code></pre>
+  --data '{"prompt":"What is Pebble?","temperature":0,"seed":2026,"maxNewTokens":96}'</code></pre>
             <p class="fine">
               Public demo endpoint · 160-character ASCII prompt · 96-character
               output limit
@@ -554,31 +703,66 @@ Tied embeddings · float32 weights</span></code></pre>
           </div>
         </div>
       </section>
-      <section class="guide-cta reveal">
-        <div>
-          <p class="eyebrow">START SMALL. SEE EVERY STEP.</p>
-          <h2>Make your first prediction.</h2>
-          <p class="muted">
-            A practical guide to prompts, temperatures, local setup, API
-            requests and experiments.
-          </p>
+      <section class="journeys">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">07 / KEEP EXPLORING</p>
+            <h2>One ecosystem. Three ways in.</h2>
+          </div>
         </div>
-        <div class="cta-actions">
-          <a class="button" href="/guide.html"
-            >Read the usage guide <span>→</span></a
-          ><a class="text-link" href="#playground">Or try the playground ↑</a>
+        <div class="journey-grid">
+          <a
+            class="journey"
+            href="https://pebble-peach-kappa.vercel.app/?view=studio&amp;guide=machine-learning"
+            ><span class="tiny-label">LANGUAGE / BUILD</span>
+            <h3>Learn the language.<span aria-hidden="true">↗</span></h3>
+            <p>
+              Run Pebble, inspect how programs behave and explore the
+              machine-learning guide.
+            </p>
+            <span class="journey-tag">Open the machine-learning guide</span></a
+          ><a class="journey" href="/guide.html#training"
+            ><span class="tiny-label">MODEL / REPRODUCE</span>
+            <h3>Run your own experiment.<span aria-hidden="true">↗</span></h3>
+            <p>
+              Reproduce training, inspect the real weights and compare
+              memorization with new phrasing.
+            </p>
+            <span class="journey-tag">Read the reproduction steps</span></a
+          ><a class="journey" href="https://pebble-sentinel.vercel.app/"
+            ><span class="tiny-label">SENTINEL / APPLY</span>
+            <h3>
+              Put behavior under a lens.<span aria-hidden="true">↗</span>
+            </h3>
+            <p>
+              Explore a separate Pebble-trained model that scores typed agent
+              actions before they run.
+            </p>
+            <span class="journey-tag">Open Sentinel</span></a
+          >
         </div>
       </section>
     </main>
     <footer>
-      <a class="brand" href="/">pebble<span>LM</span></a>
-      <p>Made by Yash Anand · Code, data & weights: MIT</p>
       <div>
-        <a href="/guide.html">Usage guide</a
-        ><a href="https://github.com/YashAnand69/pebble-llm"
-          >Source & weights ↗</a
+        <a
+          class="brand"
+          href="https://pebble-peach-kappa.vercel.app/?view=ecosystem"
+          >pebble<span class="brand-product">/ ecosystem</span></a
         >
+        <p>Made by Yash Anand. Open source under MIT.</p>
       </div>
+      <nav aria-label="Footer ecosystem">
+        <a href="https://pebble-peach-kappa.vercel.app/?view=studio">Language</a
+        ><a href="https://pebble-llm.vercel.app/" aria-current="page">Model</a
+        ><a href="https://pebble-sentinel.vercel.app/">Sentinel</a>
+      </nav>
+      <p class="footer-evidence">
+        38/40 familiar · 4/40 reworded<br /><a
+          href="https://github.com/YashAnand69/pebble-llm"
+          >Source, data & weights ↗</a
+        >
+      </p>
     </footer>
   </body>
 </html>

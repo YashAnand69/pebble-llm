@@ -10,20 +10,44 @@
     />
     <title>Using PebbleLM — the practical guide</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/fonts.css" />
     <link rel="stylesheet" href="/style.css" />
     <script src="/site.js" defer></script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header>
-      <a class="brand" href="/" aria-label="PebbleLM home"
-        >pebble<span>LM</span><i>2M</i></a
-      >
-      <nav aria-label="Main">
-        <a href="/#model">The model</a><a href="/#playground">Playground</a
-        ><a href="/guide.html" aria-current="page">Usage guide</a
-        ><a href="https://github.com/YashAnand69/pebble-llm">GitHub ↗</a>
-      </nav>
+      <div class="header-inner">
+        <a
+          class="brand"
+          href="https://pebble-peach-kappa.vercel.app/?view=ecosystem"
+          aria-label="Pebble ecosystem home"
+          ><span class="brand-mark" aria-hidden="true">p</span>pebble<span
+            class="brand-product"
+            >/ model</span
+          ></a
+        >
+        <nav aria-label="Pebble ecosystem">
+          <a href="https://pebble-peach-kappa.vercel.app/?view=studio"
+            >Language</a
+          ><a href="https://pebble-llm.vercel.app/" aria-current="page">Model</a
+          ><a href="https://pebble-sentinel.vercel.app/">Sentinel</a>
+        </nav>
+        <a
+          class="source-link"
+          href="https://github.com/YashAnand69/pebble-llm"
+          target="_blank"
+          rel="noopener"
+          >GitHub <span aria-hidden="true">↗</span></a
+        >
+      </div>
+      <div class="model-local-nav" aria-label="Model sections">
+        <a href="/#playground">Playground</a
+        ><a href="/#examples">Recorded outputs</a
+        ><a href="/#architecture">Model tour</a
+        ><a href="/guide.html" aria-current="page">Usage guide ↗</a>
+      </div>
+    <button class="motion-toggle" type="button" aria-pressed="false" aria-label="Turn off animation">Motion on</button>
     </header>
     <main id="main" class="guide-main">
       <div class="guide-hero">
@@ -50,13 +74,13 @@
           <a class="text-link" href="/#playground">Open the live demo ↗</a>
         </aside>
         <div class="guide-content">
-          <section id="playground">
+          <section id="playground" class="reveal">
             <p class="eyebrow">01 / FIRST PREDICTION</p>
             <h2>Use the playground.</h2>
             <p>
               Begin with <code>What is Pebble?</code>,
-              <code>What is attention?</code>, <code>What is tensors?</code> or
-              <code>What is functions?</code>.
+              <code>What is attention?</code>, <code>Explain tensors.</code> or
+              <code>Explain functions.</code>.
             </p>
             <ol>
               <li>
@@ -73,7 +97,7 @@
               </li>
               <li>
                 Read the result, compare it with the recorded examples, and use
-                <strong>Copy answer</strong> if you want to keep it.
+                <strong>Copy output</strong> if you want to keep it.
               </li>
             </ol>
             <p>
@@ -81,6 +105,14 @@
               earlier at EOS. Higher temperature, up to 1, adds randomness; it
               doesn't increase accuracy. Inference runs on the server using the
               released checkpoint, not on your device.
+            </p>
+            <p>
+              Open <strong>Reproducible sampling settings</strong> to choose a
+              whole-number seed from 0 to 2147483647 and an output limit from 16
+              to 96 characters. Identical prompt, temperature, seed and output
+              limit reproduce a sample. The cancel button cancels your browser
+              request; the server may finish work already started. Your last
+              three successful experiments stay in page memory only.
             </p>
             <div class="guide-callout">
               <strong>Try a wording experiment.</strong>
@@ -95,7 +127,7 @@
               >Try the playground <span>↗</span></a
             >
           </section>
-          <section id="limits">
+          <section id="limits" class="reveal">
             <p class="eyebrow">02 / SET EXPECTATIONS</p>
             <h2>A small model.<br />A specific task.</h2>
             <p>
@@ -139,7 +171,7 @@
               >Read the full model card ↗</a
             >
           </section>
-          <section id="local">
+          <section id="local" class="reveal">
             <p class="eyebrow">03 / YOUR MACHINE, YOUR WEIGHTS</p>
             <h2>Run it on your CPU.</h2>
             <p>
@@ -204,7 +236,7 @@ npx vercel dev</code></pre>
               application environment variables are required.
             </p>
           </section>
-          <section id="api">
+          <section id="api" class="reveal">
             <p class="eyebrow">04 / A SMALL JSON INTERFACE</p>
             <h2>Call the demo API.</h2>
             <p>
@@ -221,7 +253,7 @@ npx vercel dev</code></pre>
               </button>
               <pre><code id="curl-command">curl https://pebble-llm.vercel.app/api/generate \
   -H 'Content-Type: application/json' \
-  --data '{"prompt":"What is Pebble?","temperature":0}'</code></pre>
+  --data '{"prompt":"What is Pebble?","temperature":0,"seed":2026,"maxNewTokens":96}'</code></pre>
             </div>
             <div class="guide-table">
               <table>
@@ -243,14 +275,25 @@ npx vercel dev</code></pre>
                     <td><code>temperature</code></td>
                     <td>Optional number from 0 to 1; defaults to 0</td>
                   </tr>
+                  <tr>
+                    <td><code>seed</code></td>
+                    <td>
+                      Optional integer from 0 to 2147483647; defaults to 2026
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><code>maxNewTokens</code></td>
+                    <td>Optional integer from 16 to 96; defaults to 96</td>
+                  </tr>
                 </tbody>
               </table>
             </div>
             <p>
               A successful response includes <code>answer</code>,
-              <code>parameters</code> (2000000) and <code>elapsedMs</code>.
-              Elapsed time measures the model run and varies by question and
-              server conditions.
+              <code>parameters</code> (2000000), <code>elapsedMs</code> and the
+              actual <code>seed</code>, <code>temperature</code> and
+              <code>maxNewTokens</code>. Elapsed time measures the model run and
+              varies by question and server conditions.
             </p>
             <h3>Node 24 / server-side JavaScript</h3>
             <div class="guide-code">
@@ -262,7 +305,8 @@ npx vercel dev</code></pre>
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
     body: JSON.stringify({
-      prompt: 'What is Pebble?', temperature: 0
+      prompt: 'What is Pebble?', temperature: 0,
+      seed: 2026, maxNewTokens: 96
     })
   }
 );
@@ -291,7 +335,7 @@ console.log(result.answer);</code></pre>
               </p>
             </div>
           </section>
-          <section id="training">
+          <section id="training" class="reveal">
             <p class="eyebrow">05 / READ, CHANGE, REPEAT</p>
             <h2>Retrain and evaluate.</h2>
             <p>
@@ -338,7 +382,7 @@ npm run evaluate:canonical</code></pre>
               >Read the full training protocol ↗</a
             >
           </section>
-          <section id="troubleshooting">
+          <section id="troubleshooting" class="reveal">
             <p class="eyebrow">06 / WHEN SOMETHING LOOKS WRONG</p>
             <h2>Troubleshooting.</h2>
             <details>
@@ -396,14 +440,25 @@ npm run evaluate:canonical</code></pre>
       </div>
     </main>
     <footer>
-      <a class="brand" href="/">pebble<span>LM</span></a>
-      <p>Made by Yash Anand · Code, data & weights: MIT</p>
       <div>
-        <a href="/#playground">Playground</a
-        ><a href="https://github.com/YashAnand69/pebble-llm"
-          >Source & weights ↗</a
+        <a
+          class="brand"
+          href="https://pebble-peach-kappa.vercel.app/?view=ecosystem"
+          >pebble<span class="brand-product">/ ecosystem</span></a
         >
+        <p>Made by Yash Anand. Open source under MIT.</p>
       </div>
+      <nav aria-label="Footer ecosystem">
+        <a href="https://pebble-peach-kappa.vercel.app/?view=studio">Language</a
+        ><a href="https://pebble-llm.vercel.app/" aria-current="page">Model</a
+        ><a href="https://pebble-sentinel.vercel.app/">Sentinel</a>
+      </nav>
+      <p class="footer-evidence">
+        38/40 familiar · 4/40 reworded<br /><a
+          href="https://github.com/YashAnand69/pebble-llm"
+          >Source, data & weights ↗</a
+        >
+      </p>
     </footer>
   </body>
 </html>

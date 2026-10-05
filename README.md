@@ -1,5 +1,9 @@
 # PebbleLM · 2M
 
+**[Pebble ecosystem](https://pebble-peach-kappa.vercel.app/?view=ecosystem)** · [Language Studio](https://pebble-peach-kappa.vercel.app/?view=studio) · [PebbleLM](https://pebble-llm.vercel.app/) · [Sentinel](https://pebble-sentinel.vercel.app/)
+
+[Use cases and integrated journeys](docs/ECOSYSTEM.md)
+
 An **exactly 2,000,000-parameter** character-level transformer defined and trained using the [Pebble programming language](https://github.com/YashAnand69/pebble). Source, original curriculum and the released weights are MIT licensed.
 
 The network, tokenizer, corpus generator, batching, learning-rate schedule, training loop, sampling and evaluation are `.pebble` programs. Pebble's optional Node extension supplies TensorFlow.js/WASM tensor kernels, automatic differentiation and AdamW. This is a real trained transformer, with no external LLM API and no Python trainer.
