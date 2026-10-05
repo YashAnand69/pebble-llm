@@ -12,7 +12,11 @@ async function sources() {
 }
 export default async function handler(req,res) {
   res.setHeader('Cache-Control','no-store');
-  if(req.method !== 'POST') return res.status(405).json({error:'Use POST to generate an answer.'});
+  if(req.method !== 'POST') {
+    res.setHeader('Allow','POST');
+    return res.status(405).json({error:'Use POST to generate an answer.'});
+  }
+  if(!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) return res.status(400).json({error:'Send a JSON object containing a question.'});
   const {prompt,temperature=0} = req.body ?? {};
   if(typeof prompt !== 'string' || !prompt.trim() || prompt.length > 160 || !/^[\x20-\x7e\n\t]+$/.test(prompt)) return res.status(400).json({error:'Enter a question using 1–160 ASCII characters.'});
   if(typeof temperature !== 'number' || !Number.isFinite(temperature) || temperature < 0 || temperature > 1) return res.status(400).json({error:'Temperature must be between 0 and 1.'});
@@ -21,7 +25,9 @@ export default async function handler(req,res) {
     const files = await sources();
     await initializeML();
     host = createTensorExtension();
-    const io = createIOExtension(process.cwd(),['--prompt',prompt.trim(),'--temperature',String(temperature),'--max-tokens','96','--seed','2026']);
+    // io.arg looks up the first matching flag. Keep fixed options before the
+    // untrusted prompt so a question such as "--temperature" remains text.
+    const io = createIOExtension(process.cwd(),['--temperature',String(temperature),'--max-tokens','96','--seed','2026','--checkpoint','checkpoints/best.pebble-weights','--prompt',prompt.trim()]);
     const started=Date.now();
     const result=createRuntime({entry:'generate.pebble',files,extensions:[host.extension,io],maxSteps:5000000,maxTimeMs:45000}).run(files['generate.pebble'],{file:'generate.pebble',trace:false});
     if(!result.ok) throw new Error(result.error?.message ?? 'Generation failed');

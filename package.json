@@ -10,7 +10,7 @@
     "url": "https://github.com/YashAnand69/pebble-llm.git"
   },
   "engines": {
-    "node": ">=22.13.0"
+    "node": ">=22.13.0 <25"
   },
   "scripts": {
     "prepare:data": "node scripts/pebble.mjs prepare.pebble --io --compute",
@@ -22,7 +22,8 @@
     "verify:artifacts": "node scripts/verify-artifacts.mjs",
     "evaluate:canonical": "node scripts/pebble.mjs canonical.pebble --ml --io --compute",
     "refine": "node scripts/pebble.mjs refine.pebble --ml --io --compute --",
-    "build:web": "node scripts/build-web.mjs"
+    "build:web": "node scripts/build-web.mjs",
+    "build": "npm run build:web"
   },
   "dependencies": {
     "pebble": "https://github.com/YashAnand69/pebble/releases/download/v2.1.1/pebble-runtime-2.1.1.tgz"

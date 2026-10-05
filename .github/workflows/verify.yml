@@ -12,7 +12,7 @@ jobs:
       - run: npm run verify:artifacts
       - run: npm test
       - run: npm run inspect
-      - run: npm run build:web
+      - run: npm run build
       - run: npm run prepare:data
       - name: Confirm corpus is reproducible
         run: git diff --exit-code -- data/

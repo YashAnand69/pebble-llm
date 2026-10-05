@@ -6,6 +6,18 @@ The network, tokenizer, corpus generator, batching, learning-rate schedule, trai
 
 This is a small educational language model for a 40-topic Pebble/programming/ML curriculum. Its reserved prompts test new wording of **seen topics with shared answers**. It is not a general assistant or an unseen-knowledge benchmark.
 
+## Web playground and deployment
+
+The playground is a static page with a Vercel Node function at `/api/generate`. The function runs the released checkpoint on the WASM CPU backend; it does not call an external AI provider. The existing design, model, data and weights are preserved.
+
+Use Node 24 and run `npm ci`, `npm test`, then `npm run build`. The build verifies all released artifact hashes before copying the public result reports. In Vercel, import this repository, use the **Other** framework preset, Node **24.x**, and the repository root. `vercel.json` supplies the install/build commands, public output directory, 60-second function limit and required model/WASM files. Pushes to `main` deploy production when the Vercel Git integration is connected.
+
+For a manual deployment, run `npx vercel link` to select `pebble-llm`, then `npx vercel --prod`. To run the complete playground locally, use `npx vercel dev` after linking; serving `public/` alone does not run inference.
+
+**No application environment variables, API keys, database or external model credentials are required.** GitHub/Vercel account access is needed only to push and deploy. Do not commit `.env*` or `.vercel/`.
+
+Questions must use 1–160 ASCII characters; temperature is 0–1 and generation is limited to 96 characters. Invalid input returns 400, unsupported methods return 405 with `Allow: POST`, and failed inference returns a generic error. The endpoint is public and each request performs CPU inference. There is no persistent rate limiter; use Vercel Firewall rate limiting if traffic needs to be capped. The model remains educational, with 4/40 exact matches on reserved phrasings.
+
 ## Run the released model
 
 Use Node 24 (minimum 22.13).
